@@ -1,6 +1,6 @@
 import app from "./index";
 
-function handler(req: any, res: any) {
+export default function handler(req: any, res: any) {
   const requestUrl = new URL(req.url ?? "/api", "http://certus.local");
   const targetPath = requestUrl.searchParams.get("path");
 
@@ -13,5 +13,3 @@ function handler(req: any, res: any) {
 
   return app(req, res);
 }
-
-module.exports = handler;

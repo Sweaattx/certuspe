@@ -8,7 +8,7 @@
     "dev:api": "tsx watch src/server/index.ts",
     "dev:web": "vite --host 0.0.0.0",
     "build": "npm run build:api && tsc --noEmit && vite build",
-    "build:api": "esbuild src/server/vercel-entry.cts --bundle --platform=node --target=node20 --format=cjs --minify --outfile=api/index.js --legal-comments=none",
+    "build:api": "node scripts/build-api.mjs",
     "start": "tsx src/server/index.ts",
     "test": "vitest run"
   },
