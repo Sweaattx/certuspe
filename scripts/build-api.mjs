@@ -6,7 +6,7 @@ await build({
   platform: "node",
   target: "node20",
   format: "esm",
-  outfile: "api/index.ts",
+  outfile: "api/handler.mjs",
   minify: true,
   legalComments: "none",
   banner: {
