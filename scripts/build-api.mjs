@@ -11,5 +11,8 @@ await build({
   legalComments: "none",
   banner: {
     js: "import { createRequire } from 'node:module';const require=createRequire(import.meta.url);"
+  },
+  footer: {
+    js: "export default globalThis['__certusVercelHandler'];"
   }
 });
