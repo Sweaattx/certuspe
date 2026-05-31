@@ -31,6 +31,8 @@ const app = express();
 const port = Number(process.env.PORT ?? 3000);
 const distPath = path.resolve(process.cwd(), "dist");
 
+app.set("trust proxy", 1);
+
 function normalizeBaseUrl(value: string | undefined | null) {
   const clean = value?.trim().replace(/\/+$/, "");
   return clean || null;
