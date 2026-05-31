@@ -4,7 +4,6 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { randomInt, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { EmailReceipt, Role, User, VoteRecord, VoteType } from "../shared/types";
@@ -30,9 +29,7 @@ import {
 
 const app = express();
 const port = Number(process.env.PORT ?? 3000);
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const distPath = path.resolve(__dirname, "../../dist");
+const distPath = path.resolve(process.cwd(), "dist");
 
 function normalizeBaseUrl(value: string | undefined | null) {
   const clean = value?.trim().replace(/\/+$/, "");
@@ -755,10 +752,16 @@ function createSafeResults(db: Awaited<ReturnType<typeof readDb>>) {
 }
 
 if (process.env.VERCEL !== "1") {
-  await ensureDb();
-  app.listen(port, () => {
-    console.log(`CERTUS API running on http://localhost:${port}`);
-  });
+  void ensureDb()
+    .then(() => {
+      app.listen(port, () => {
+        console.log(`CERTUS API running on http://localhost:${port}`);
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    });
 }
 
 export default app;

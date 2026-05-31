@@ -7,7 +7,8 @@
     "dev": "concurrently \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "tsx watch src/server/index.ts",
     "dev:web": "vite --host 0.0.0.0",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run build:api && tsc --noEmit && vite build",
+    "build:api": "esbuild src/server/vercel-entry.cts --bundle --platform=node --target=node20 --format=cjs --minify --outfile=api/index.cjs --legal-comments=none",
     "start": "tsx src/server/index.ts",
     "test": "vitest run"
   },
@@ -39,6 +40,7 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^6.0.2",
+    "esbuild": "^0.28.0",
     "playwright": "^1.60.0",
     "typescript": "^5.8.3",
     "vite": "^8.0.14",
