@@ -121,7 +121,7 @@ export async function api<T>(path: string, options: RequestInit = {}, token?: st
   }
   const payload = await response.json();
   if (!response.ok) {
-    throw new ApiError(payload?.error ?? "No se pudo completar la operación.", response.status);
+    throw new ApiError(payload?.error ?? "No se pudo completar la operacion.", response.status);
   }
   return payload as T;
 }

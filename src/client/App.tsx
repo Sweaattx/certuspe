@@ -1,4 +1,4 @@
-﻿import {
+import {
   Archive,
   ChartBar,
   CheckCircle,
@@ -88,23 +88,23 @@ function randomVotingTableId(tables: BootstrapData["tables"]): string | null {
 const requirementGroups = [
   {
     title: "Captura y procesamiento de votos",
-    items: ["RF-001 Captura digital de cÃ©dula", "RF-002 Procesamiento de imagen", "RF-003 DetecciÃ³n de marcas", "RF-004 DeterminaciÃ³n de candidato"]
+    items: ["RF-001 Captura digital de cedula", "RF-002 Procesamiento de imagen", "RF-003 Deteccion de marcas", "RF-004 Determinacion de candidato"]
   },
   {
-    title: "ValidaciÃ³n y registro",
-    items: ["RF-005 ClasificaciÃ³n de voto", "RF-006 Registro centralizado", "RF-007 AsociaciÃ³n por mesa", "RF-008 Control de duplicidad"]
+    title: "Validacion y registro",
+    items: ["RF-005 Clasificacion de voto", "RF-006 Registro centralizado", "RF-007 Asociacion por mesa", "RF-008 Control de duplicidad"]
   },
   {
-    title: "VisualizaciÃ³n y acceso",
+    title: "Visualizacion y acceso",
     items: ["RF-009 Resultados preliminares", "RF-010 Resultados en tiempo real", "RF-011 Consulta ciudadana", "RF-012 Vista de auditor"]
   },
   {
-    title: "Seguridad y auditorÃ­a",
-    items: ["RF-013 Respaldo digital", "RF-014 ValidaciÃ³n cruzada", "RF-015 DetecciÃ³n de inconsistencias", "RF-016 Reportes automÃ¡ticos"]
+    title: "Seguridad y auditoria",
+    items: ["RF-013 Respaldo digital", "RF-014 Validacion cruzada", "RF-015 Deteccion de inconsistencias", "RF-016 Reportes automaticos"]
   },
   {
-    title: "GestiÃ³n del sistema",
-    items: ["RF-017 Roles y permisos", "RF-018 TransmisiÃ³n segura", "RF-019 Consulta histÃ³rica", "RF-020 Registro de acciones"]
+    title: "Gestion del sistema",
+    items: ["RF-017 Roles y permisos", "RF-018 Transmision segura", "RF-019 Consulta historica", "RF-020 Registro de acciones"]
   }
 ];
 
@@ -116,7 +116,7 @@ const navItems: Array<{
 }> = [
   { id: "scan", label: "Escaneo", roles: "all", icon: IdentificationCard },
   { id: "results", label: "Resultados", roles: "all", icon: ChartBar },
-  { id: "detail", label: "AuditorÃ­a", roles: ["admin", "auditor", "member"], icon: SlidersHorizontal },
+  { id: "detail", label: "Auditoria", roles: ["admin", "auditor", "member"], icon: SlidersHorizontal },
   { id: "reports", label: "Reportes", roles: ["admin", "auditor", "member"], icon: FileText },
   { id: "users", label: "Usuarios", roles: ["admin"], icon: UserGear },
   { id: "history", label: "Historial", roles: ["admin", "auditor"], icon: ClockCounterClockwise },
@@ -128,14 +128,14 @@ function roleLabel(role: Role): string {
     admin: "Administrador",
     auditor: "Auditor",
     member: "Miembro de mesa",
-    citizen: "CiudadanÃ­a"
+    citizen: "Ciudadania"
   };
   return labels[role];
 }
 
 function voteTypeLabel(type: VoteType): string {
   const labels: Record<VoteType, string> = {
-    valid: "VÃ¡lido",
+    valid: "Valido",
     null: "Nulo",
     blank: "En blanco"
   };
@@ -421,7 +421,7 @@ export function App() {
             <span>Conteo preliminar</span>
           </div>
         </div>
-        <nav className="nav-list" aria-label="NavegaciÃ³n principal">
+        <nav className="nav-list" aria-label="Navegacion principal">
           {availableNav.map((item) => {
             const Icon = item.icon;
             return (
@@ -506,11 +506,11 @@ export function App() {
 
 function viewTitle(view: ViewId): string {
   const titles: Record<ViewId, string> = {
-    scan: "Escaneo de cÃ©dula",
+    scan: "Escaneo de cedula",
     results: "Resultados generales",
     detail: "Resultados detallados",
-    reports: "Reportes automÃ¡ticos",
-    users: "GestiÃ³n de usuarios",
+    reports: "Reportes automaticos",
+    users: "Gestion de usuarios",
     history: "Historial de acciones",
     project: "Ficha del proyecto"
   };
@@ -557,26 +557,26 @@ function CitizenQrOnlyPage({
           <div className="brand-mark">C</div>
           <div>
             <strong>CERTUS</strong>
-            <span>VotaciÃ³n por QR</span>
+            <span>Votacion por QR</span>
           </div>
         </div>
         <div className="citizen-copy">
           <span className="eyebrow">{processName}</span>
           <h1>Escanea el QR para votar</h1>
           <p>
-            Tu cuenta ciudadana ya estÃ¡ activa. Escanea este QR desde otro dispositivo o abre la votaciÃ³n
+            Tu cuenta ciudadana ya esta activa. Escanea este QR desde otro dispositivo o abre la votacion
             directamente en esta pantalla.
           </p>
         </div>
         <div className="citizen-qr-card">
           <div>
             <span className="eyebrow">QR general aleatorio</span>
-            <strong>AsignaciÃ³n automÃ¡tica de mesa</strong>
-            <small>Al abrirlo, CERTUS asigna una de las mesas disponibles y muestra la cÃ©dula virtual.</small>
+            <strong>Asignacion automatica de mesa</strong>
+            <small>Al abrirlo, CERTUS asigna una de las mesas disponibles y muestra la cedula virtual.</small>
           </div>
           {qrDataUrl ? <img src={qrDataUrl} alt="QR general para votar" /> : <div className="qr-placeholder" />}
           <a className="primary-button wide" href={url}>
-            Abrir votaciÃ³n ahora
+            Abrir votacion ahora
           </a>
         </div>
         <div className="citizen-account">
@@ -621,13 +621,13 @@ function RandomVoteRoute({
             <div className="brand-mark">C</div>
             <div>
               <strong>CERTUS</strong>
-              <span>CÃ©dula virtual</span>
+              <span>Cedula virtual</span>
             </div>
           </div>
           <div className="vote-auth-panel">
             <span className="eyebrow">Proceso electoral</span>
             <h2>No hay mesas disponibles</h2>
-            <p>El proceso no tiene mesas habilitadas para votaciÃ³n en este momento.</p>
+            <p>El proceso no tiene mesas habilitadas para votacion en este momento.</p>
           </div>
         </section>
       </main>
@@ -664,7 +664,7 @@ function AuthScreen({
             <span className="eyebrow">{data.process.name}</span>
             <h1>Acceso al sistema electoral</h1>
             <p>
-              El equipo operativo ingresa con contraseña. Los votantes validan su identidad con DNI, correo y codigo de verificacion.
+              El equipo operativo ingresa con contrasena. Los votantes validan su identidad con DNI, correo y codigo de verificacion.
             </p>
           </div>
         </div>
@@ -728,7 +728,7 @@ function AuthPanel({
               />
             </label>
             <label>
-              Contraseña
+              Contrasena
               <input
                 value={loginForm.password}
                 onChange={(event) => setLoginForm({ ...loginForm, password: event.target.value })}
@@ -907,7 +907,7 @@ function VirtualVotePage({
       })
       .catch((err) => {
         if (mounted) {
-          setError(err instanceof ApiError ? err.message : "No se pudo cargar la cÃ©dula virtual.");
+          setError(err instanceof ApiError ? err.message : "No se pudo cargar la cedula virtual.");
         }
       });
     return () => {
@@ -931,7 +931,7 @@ function VirtualVotePage({
       })
       .catch((err) => {
         if (mounted) {
-          setError(err instanceof ApiError ? err.message : "No se pudo validar tu estado de votaciÃ³n.");
+          setError(err instanceof ApiError ? err.message : "No se pudo validar tu estado de votacion.");
         }
       });
     return () => {
@@ -1000,15 +1000,15 @@ function VirtualVotePage({
             <div className="brand-mark">C</div>
             <div>
               <strong>CERTUS</strong>
-              <span>CÃ©dula virtual</span>
+              <span>Cedula virtual</span>
             </div>
           </div>
           <div>
             <span className="eyebrow">{data?.process.name ?? "Proceso electoral"}</span>
-            <h1>VotaciÃ³n virtual</h1>
+            <h1>Votacion virtual</h1>
             <p>
               Mesa {data?.table.code ?? tableId}
-              {data?.place ? ` Â· ${data.place.name}` : ""}
+              {data?.place ? ` - ${data.place.name}` : ""}
             </p>
           </div>
         </div>
@@ -1024,19 +1024,19 @@ function VirtualVotePage({
           <div className="vote-auth-panel">
             <span className="eyebrow">{roleLabel(auth.user.role)}</span>
             <h2>Usa una cuenta ciudadana</h2>
-            <p>Cierra sesiÃ³n e ingresa con DNI y correo como votante para abrir esta cÃ©dula.</p>
+            <p>Cierra sesion e ingresa con DNI y correo como votante para abrir esta cedula.</p>
           </div>
         ) : status?.hasVoted || submittedRecord ? (
           <div className="vote-auth-panel success">
             <CheckCircle size={24} weight="fill" />
             <h2>Listo, tu voto ha sido procesado</h2>
-            <p>Muchas gracias. CERTUSPE registrÃ³ tu voto y bloqueÃ³ nuevos envÃ­os de esta cuenta para el proceso actual.</p>
+            <p>Muchas gracias. CERTUSPE registro tu voto y bloqueo nuevos envios de esta cuenta para el proceso actual.</p>
             <div className="vote-email-receipt">
               <EnvelopeSimple size={20} weight="duotone" />
               <div>
-                <span>Comprobante de verificaciÃ³n</span>
+                <span>Comprobante de verificacion</span>
                 <strong>{emailTarget}</strong>
-                <small>{emailStatusText} No revela por quiÃ©n votaste. Gracias por confiar en Certuspe.</small>
+                <small>{emailStatusText} No revela por quien votaste. Gracias por confiar en Certuspe.</small>
               </div>
             </div>
             <code>{submittedRecord?.integrityHash.slice(0, 24) ?? status?.receipt?.recordId}</code>
@@ -1044,8 +1044,8 @@ function VirtualVotePage({
         ) : (
           <div className="virtual-ballot">
             <div className="section-heading">
-              <span className="eyebrow">CÃ©dula virtual</span>
-              <h2>Marca una opciÃ³n</h2>
+              <span className="eyebrow">Cedula virtual</span>
+              <h2>Marca una opcion</h2>
             </div>
             <div className="virtual-candidate-list">
               {data?.candidates.map((candidate) => (
@@ -1140,7 +1140,7 @@ function ScanView({
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!canProcess || !auth) {
-      setError("Inicia sesiÃ³n como administrador o miembro de mesa para registrar votos.");
+      setError("Inicia sesion como administrador o miembro de mesa para registrar votos.");
       return;
     }
     setSubmitting(true);
@@ -1160,7 +1160,7 @@ function ScanView({
       setSerial(`CED-${Date.now().toString().slice(-6)}`);
       await onRefresh(auth);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudo procesar la cÃ©dula.");
+      setError(err instanceof ApiError ? err.message : "No se pudo procesar la cedula.");
     } finally {
       setSubmitting(false);
     }
@@ -1174,19 +1174,19 @@ function ScanView({
       <div className="scan-intro">
         <div>
           <span className="eyebrow">Terminal activa</span>
-          <h2>Escaneo y registro de cÃ©dulas</h2>
+          <h2>Escaneo y registro de cedulas</h2>
         </div>
         <div className="scan-stage-list" aria-label="Estados del registro">
           <span>Captura</span>
           <span>Procesamiento</span>
           <span>Hash</span>
-          <span>ConfirmaciÃ³n</span>
+          <span>Confirmacion</span>
         </div>
       </div>
       <form className="panel scan-form" onSubmit={submit}>
         <div className="section-heading">
           <span className="eyebrow">Lectura de mesa</span>
-          <h2>Datos de la cÃ©dula</h2>
+          <h2>Datos de la cedula</h2>
         </div>
         <div className="form-grid">
           <label>
@@ -1200,7 +1200,7 @@ function ScanView({
             </select>
           </label>
           <label>
-            CÃ³digo de cÃ©dula
+            Codigo de cedula
             <input value={serial} onChange={(event) => setSerial(event.target.value)} />
           </label>
         </div>
@@ -1213,7 +1213,7 @@ function ScanView({
             type="button"
             onClick={setValidSample}
           >
-            VÃ¡lido
+            Valido
           </button>
           <button
             className={detectedType === "blank" ? "mode-button active" : "mode-button"}
@@ -1266,7 +1266,7 @@ function ScanView({
             onClick={() => setImageData(createBallotPreview(data.candidates, selectedIds, serial))}
           >
             <MagnifyingGlass size={17} />
-            Escanear cÃ©dula
+            Escanear cedula
           </button>
         </div>
 
@@ -1279,7 +1279,7 @@ function ScanView({
 
       <div className="panel scanner-preview">
         <div className="preview-frame">
-          <img src={imageData} alt="CÃ©dula digital capturada" />
+          <img src={imageData} alt="Cedula digital capturada" />
           <span className="corner top-left" />
           <span className="corner top-right" />
           <span className="corner bottom-left" />
@@ -1337,7 +1337,7 @@ function VirtualQrPanel({ tables, publicBaseUrl }: { tables: BootstrapData["tabl
   return (
     <div className="virtual-qr-panel">
       <div>
-        <span className="eyebrow">EscÃ¡ner virtual</span>
+        <span className="eyebrow">Escaner virtual</span>
         <strong>QR general aleatorio</strong>
         <small>Proyecta o imprime este QR. El sistema asigna una mesa al azar entre {tableCodes}.</small>
         <div className="qr-actions">
@@ -1345,18 +1345,18 @@ function VirtualQrPanel({ tables, publicBaseUrl }: { tables: BootstrapData["tabl
             Mostrar QR
           </button>
           <a className="ghost-button" href={url} target="_blank" rel="noreferrer">
-            Abrir votaciÃ³n aleatoria
+            Abrir votacion aleatoria
           </a>
         </div>
       </div>
-      {qrDataUrl ? <img src={qrDataUrl} alt="QR general de votaciÃ³n aleatoria" /> : null}
+      {qrDataUrl ? <img src={qrDataUrl} alt="QR general de votacion aleatoria" /> : null}
 
       {expanded ? (
         <div className="modal-backdrop" role="presentation">
           <div className="modal-panel qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title">
             <div className="section-heading">
               <span className="eyebrow">Mesas disponibles</span>
-              <h2 id="qr-title">QR general de votaciÃ³n</h2>
+              <h2 id="qr-title">QR general de votacion</h2>
             </div>
             {qrDataUrl ? <img src={qrDataUrl} alt="QR general ampliado" /> : null}
             <code>{url}</code>
@@ -1365,7 +1365,7 @@ function VirtualQrPanel({ tables, publicBaseUrl }: { tables: BootstrapData["tabl
                 Cerrar
               </button>
               <a className="primary-button" href={url} target="_blank" rel="noreferrer">
-                Abrir votaciÃ³n aleatoria
+                Abrir votacion aleatoria
               </a>
             </div>
           </div>
@@ -1408,19 +1408,19 @@ function ResultsView({ results, data }: { results: ResultSummary; data: Bootstra
     <section className="results-layout">
       <div className="metric-strip">
         <Metric label="Total de votos" value={results.totalVotes.toString()} />
-        <Metric label="VÃ¡lidos" value={results.validVotes.toString()} />
+        <Metric label="Validos" value={results.validVotes.toString()} />
         <Metric label="Nulos" value={results.nullVotes.toString()} />
         <Metric label="Blancos" value={results.blankVotes.toString()} />
-        <Metric label="ParticipaciÃ³n" value={`${results.participation}%`} />
+        <Metric label="Participacion" value={`${results.participation}%`} />
       </div>
       <div className="panel chart-panel">
         <div className="section-heading row">
           <div>
-            <span className="eyebrow">Ãšltima actualizaciÃ³n {formatDate(results.generatedAt)}</span>
+            <span className="eyebrow">Asltima actualizacion {formatDate(results.generatedAt)}</span>
             <h2>Conteo preliminar</h2>
           </div>
-          <select aria-label="Tipo de grÃ¡fico">
-            <option>GrÃ¡fico de barras</option>
+          <select aria-label="Tipo de grafico">
+            <option>Grafico de barras</option>
           </select>
         </div>
         <div className="bar-chart" aria-label="Resultados por candidato">
@@ -1453,7 +1453,7 @@ function ResultsView({ results, data }: { results: ResultSummary; data: Bootstra
               <tr>
                 <th>Mesa</th>
                 <th>Total</th>
-                <th>VÃ¡lidos</th>
+                <th>Validos</th>
                 <th>Nulos</th>
                 <th>Blancos</th>
               </tr>
@@ -1531,7 +1531,7 @@ function DetailView({
         physicalCandidateId: physicalType === "valid" ? physicalCandidate : null,
         note
       });
-      onNotice("ValidaciÃ³n cruzada registrada.");
+      onNotice("Validacion cruzada registrada.");
       setSelectedRecord(null);
       await onRefresh(auth);
     } catch (err) {
@@ -1544,7 +1544,7 @@ function DetailView({
       <div className="panel table-panel wide-panel">
         <div className="section-heading row">
           <div>
-            <span className="eyebrow">AuditorÃ­a por mesa</span>
+            <span className="eyebrow">Auditoria por mesa</span>
             <h2>Registros detallados</h2>
           </div>
           <div className="filters">
@@ -1573,12 +1573,12 @@ function DetailView({
             <table>
               <thead>
                 <tr>
-                  <th>CÃ©dula</th>
+                  <th>Cedula</th>
                   <th>Mesa</th>
                   <th>Distrito</th>
                   <th>Tipo</th>
                   <th>Candidato</th>
-                  <th>ValidaciÃ³n</th>
+                  <th>Validacion</th>
                   <th />
                 </tr>
               </thead>
@@ -1618,7 +1618,7 @@ function DetailView({
               <WarningCircle size={17} />
               <div>
                 <strong>{item.title}</strong>
-                <span>{item.priority} Â· {item.status}</span>
+                <span>{item.priority} - {item.status}</span>
               </div>
             </div>
           ))}
@@ -1631,12 +1631,12 @@ function DetailView({
           <div className="modal-panel" role="dialog" aria-modal="true" aria-labelledby="validate-title">
             <div className="section-heading">
               <span className="eyebrow">{selectedRecord.ballotSerial}</span>
-              <h2 id="validate-title">ValidaciÃ³n cruzada</h2>
+              <h2 id="validate-title">Validacion cruzada</h2>
             </div>
             <label>
-              Tipo en acta fÃ­sica
+              Tipo en acta fisica
               <select value={physicalType} onChange={(event) => setPhysicalType(event.target.value as VoteType)}>
-                <option value="valid">VÃ¡lido</option>
+                <option value="valid">Valido</option>
                 <option value="null">Nulo</option>
                 <option value="blank">En blanco</option>
               </select>
@@ -1654,7 +1654,7 @@ function DetailView({
               </label>
             ) : null}
             <label>
-              ObservaciÃ³n
+              Observacion
               <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} />
             </label>
             {error ? <p className="field-error">{error}</p> : null}
@@ -1663,7 +1663,7 @@ function DetailView({
                 Cancelar
               </button>
               <button className="primary-button" type="button" onClick={validate}>
-                Registrar validaciÃ³n
+                Registrar validacion
               </button>
             </div>
           </div>
@@ -1679,7 +1679,7 @@ function ReportsView({ auth, incidences }: { auth: AuthState | null; incidences:
 
   async function generate() {
     if (!auth) {
-      setError("Debes iniciar sesiÃ³n para generar reportes.");
+      setError("Debes iniciar sesion para generar reportes.");
       return;
     }
     setError(null);
@@ -1709,7 +1709,7 @@ function ReportsView({ auth, incidences }: { auth: AuthState | null; incidences:
       <div className="panel">
         <div className="section-heading">
           <span className="eyebrow">Reporte preliminar</span>
-          <h2>Resumen automÃ¡tico del conteo</h2>
+          <h2>Resumen automatico del conteo</h2>
         </div>
         {error ? <p className="field-error">{error}</p> : null}
         <div className="button-row">
@@ -1726,7 +1726,7 @@ function ReportsView({ auth, incidences }: { auth: AuthState | null; incidences:
         {report ? (
           <>
             <Metric label="Registros" value={report.integrity.totalRecords.toString()} />
-            <Metric label="ImÃ¡genes" value={report.integrity.totalImages.toString()} />
+            <Metric label="Imagenes" value={report.integrity.totalImages.toString()} />
             <Metric label="Confirmados" value={report.integrity.confirmedRecords.toString()} />
             <Metric label="Incidencias abiertas" value={report.openIncidences.length.toString()} />
           </>
@@ -1815,11 +1815,11 @@ function UsersView({
             <option value="admin">Administrador</option>
             <option value="auditor">Auditor</option>
             <option value="member">Miembro de mesa</option>
-            <option value="citizen">CiudadanÃ­a</option>
+            <option value="citizen">Ciudadania</option>
           </select>
         </label>
         <label>
-          ContraseÃ±a inicial
+          Contrasena inicial
           <input value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} />
         </label>
         {error ? <p className="field-error">{error}</p> : null}
@@ -1851,7 +1851,7 @@ function UsersView({
                       <option value="admin">Administrador</option>
                       <option value="auditor">Auditor</option>
                       <option value="member">Miembro de mesa</option>
-                      <option value="citizen">CiudadanÃ­a</option>
+                      <option value="citizen">Ciudadania</option>
                     </select>
                   </td>
                   <td>
@@ -1879,7 +1879,7 @@ function HistoryView({ logs, users }: { logs: AuditLog[]; users: User[] }) {
     <section className="panel">
       <div className="section-heading">
         <span className="eyebrow">Registro de acciones</span>
-        <h2>AuditorÃ­a del sistema</h2>
+        <h2>Auditoria del sistema</h2>
       </div>
       <div className="timeline">
         {logs.map((log) => (
@@ -1979,4 +1979,3 @@ function EmptyState({ title }: { title: string }) {
     </div>
   );
 }
-

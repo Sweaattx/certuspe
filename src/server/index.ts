@@ -1,4 +1,4 @@
-﻿import "dotenv/config";
+import "dotenv/config";
 import express, { type Request, type Response, type NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -208,15 +208,15 @@ async function syncVoteSafely(record: VoteRecord, actor: User, email?: EmailRece
 async function requireUser(req: Request, roles?: Role[]): Promise<StoredUser> {
   const session = getSession(bearerToken(req));
   if (!session) {
-    throw new DomainError("La sesiÃ³n no es vÃ¡lida o expirÃ³.", 401);
+    throw new DomainError("La sesion no es valida o expiro.", 401);
   }
   const db = await readDb();
   const user = db.users.find((item) => item.id === session.userId && item.status === "active");
   if (!user) {
-    throw new DomainError("El usuario no estÃ¡ activo.", 401);
+    throw new DomainError("El usuario no esta activo.", 401);
   }
   if (roles && !roles.includes(user.role)) {
-    throw new DomainError("No tienes permisos para realizar esta acciÃ³n.", 403);
+    throw new DomainError("No tienes permisos para realizar esta accion.", 403);
   }
   return user;
 }
@@ -265,7 +265,7 @@ app.post(
     const db = await readDb();
     const user = db.users.find((item) => item.email.toLowerCase() === normalizeEmail(input.email));
     if (!user || user.status !== "active" || !verifyPassword(input.password, user.passwordHash)) {
-      throw new DomainError("Correo o contraseÃ±a invÃ¡lidos.", 401);
+      throw new DomainError("Correo o contrasena invalidos.", 401);
     }
     if (user.role === "citizen") {
       throw new DomainError("Los votantes ingresan con DNI, correo y codigo de verificacion.", 403);
@@ -736,7 +736,7 @@ app.get("*", (_req, res) => {
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   if (error instanceof z.ZodError) {
     res.status(400).json({
-      error: "Datos invÃ¡lidos.",
+      error: "Datos invalidos.",
       details: error.errors.map((item) => item.message)
     });
     return;
@@ -746,7 +746,7 @@ app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
     return;
   }
   console.error(error);
-  res.status(500).json({ error: "OcurriÃ³ un error interno." });
+  res.status(500).json({ error: "Ocurrio un error interno." });
 });
 
 function createSafeResults(db: Awaited<ReturnType<typeof readDb>>) {

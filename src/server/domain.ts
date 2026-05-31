@@ -111,7 +111,7 @@ export function processBallot(db: CertusDb, input: ProcessBallotInput, actor: Us
 
   const ballotSerial = normalizeSerial(input.ballotSerial);
   if (!ballotSerial) {
-    throw new DomainError("El número de cédula es obligatorio.", 400);
+    throw new DomainError("El numero de cedula es obligatorio.", 400);
   }
 
   const duplicated = db.records.find((record) => record.ballotSerial === ballotSerial);
@@ -120,18 +120,18 @@ export function processBallot(db: CertusDb, input: ProcessBallotInput, actor: Us
       duplicated.id,
       "Alta",
       "Intento de duplicidad",
-      `La cédula ${ballotSerial} ya fue procesada en el registro ${duplicated.id}.`
+      `La cedula ${ballotSerial} ya fue procesada en el registro ${duplicated.id}.`
     );
     db.incidences.push(incidence);
     db.auditLogs.push(createAuditLog(actor.id, "duplicate_rejected", "vote_record", duplicated.id, incidence.detail));
-    throw new DomainError("La cédula ya fue procesada. El sistema evitó un voto duplicado.", 409);
+    throw new DomainError("La cedula ya fue procesada. El sistema evito un voto duplicado.", 409);
   }
 
   const uniqueMarks = Array.from(new Set(input.markedCandidateIds));
   const knownCandidateIds = new Set(db.candidates.map((candidate) => candidate.id));
   const detectedMarks = uniqueMarks.filter((candidateId) => knownCandidateIds.has(candidateId));
   if (detectedMarks.length !== uniqueMarks.length) {
-    throw new DomainError("La cédula contiene marcas no reconocidas por la plantilla electoral.", 400);
+    throw new DomainError("La cedula contiene marcas no reconocidas por la plantilla electoral.", 400);
   }
 
   const voteType = getVoteType(detectedMarks);
@@ -143,10 +143,10 @@ export function processBallot(db: CertusDb, input: ProcessBallotInput, actor: Us
     voteType,
     observation:
       voteType === "valid"
-        ? "Marca detectada dentro del área válida"
+        ? "Marca detectada dentro del area valida"
         : voteType === "blank"
           ? "No se detectaron marcas"
-          : "Se detectaron múltiples marcas",
+          : "Se detectaron multiples marcas",
     selectedCandidateIds,
     detectedMarks,
     confidence
@@ -200,7 +200,7 @@ export function processBallot(db: CertusDb, input: ProcessBallotInput, actor: Us
   db.scans.push(scan);
   db.images.push(image);
   db.records.push(record);
-  db.auditLogs.push(createAuditLog(actor.id, "process_ballot", "vote_record", record.id, `Cédula ${ballotSerial} registrada en ${table.code}.`));
+  db.auditLogs.push(createAuditLog(actor.id, "process_ballot", "vote_record", record.id, `Cedula ${ballotSerial} registrada en ${table.code}.`));
 
   if (voteType !== "valid") {
     db.incidences.push(
@@ -208,7 +208,7 @@ export function processBallot(db: CertusDb, input: ProcessBallotInput, actor: Us
         record.id,
         "Media",
         voteType === "blank" ? "Voto en blanco" : "Voto nulo",
-        `La cédula ${ballotSerial} fue clasificada como ${displayVoteType(voteType)}.`
+        `La cedula ${ballotSerial} fue clasificada como ${displayVoteType(voteType)}.`
       )
     );
   }
@@ -221,7 +221,7 @@ export function processVirtualVote(db: CertusDb, input: ProcessVirtualVoteInput,
     throw new DomainError("Solo una cuenta ciudadana puede emitir voto virtual.", 403);
   }
   if (db.process.status !== "En progreso") {
-    throw new DomainError("El proceso electoral no estÃ¡ abierto.", 409);
+    throw new DomainError("El proceso electoral no esta abierto.", 409);
   }
 
   const table = db.tables.find((item) => item.id === input.tableId);
@@ -240,7 +240,7 @@ export function processVirtualVote(db: CertusDb, input: ProcessVirtualVoteInput,
   const knownCandidateIds = new Set(db.candidates.map((candidate) => candidate.id));
   const detectedMarks = uniqueMarks.filter((candidateId) => knownCandidateIds.has(candidateId));
   if (detectedMarks.length !== uniqueMarks.length) {
-    throw new DomainError("La cÃ©dula virtual contiene una opciÃ³n no vÃ¡lida.", 400);
+    throw new DomainError("La cedula virtual contiene una opcion no valida.", 400);
   }
 
   const voteType = getVoteType(detectedMarks);
@@ -384,7 +384,7 @@ export function queueVoteConfirmationEmail(db: CertusDb, actor: User, record: Vo
 
 export function crossValidateRecord(db: CertusDb, input: CrossValidateInput, actor: User): VoteRecord {
   if (actor.role !== "admin" && actor.role !== "auditor") {
-    throw new DomainError("No tienes permisos para validar actas físicas.", 403);
+    throw new DomainError("No tienes permisos para validar actas fisicas.", 403);
   }
 
   const record = db.records.find((item) => item.id === input.recordId);
@@ -411,7 +411,7 @@ export function crossValidateRecord(db: CertusDb, input: CrossValidateInput, act
       "cross_validate",
       "vote_record",
       record.id,
-      consistent ? "Validación cruzada consistente." : "Validación cruzada con inconsistencia."
+      consistent ? "Validacion cruzada consistente." : "Validacion cruzada con inconsistencia."
     )
   );
 
@@ -420,8 +420,8 @@ export function crossValidateRecord(db: CertusDb, input: CrossValidateInput, act
       createIncidence(
         record.id,
         "Alta",
-        "Inconsistencia con acta física",
-        `El registro ${record.id} no coincide con la validación física.`
+        "Inconsistencia con acta fisica",
+        `El registro ${record.id} no coincide con la validacion fisica.`
       )
     );
   }
@@ -542,7 +542,7 @@ export function createIncidence(
 
 export function displayVoteType(type: VoteType): string {
   if (type === "valid") {
-    return "válido";
+    return "valido";
   }
   if (type === "blank") {
     return "en blanco";

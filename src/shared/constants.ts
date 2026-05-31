@@ -7,14 +7,14 @@ export const CERTUS_COLORS = {
 
 export const PROJECT_META: ProjectMeta = {
   university: "Universidad Peruana de Ciencias Aplicadas",
-  course: "SI720 Diseño y Patrones de Software",
+  course: "SI720 Diseno y Patrones de Software",
   document: "Documento de Especificaciones Funcionales (DEF)",
   systemName: "STELA / CERTUS",
   subtitle: "Sistema de conteo preliminar para procesos electorales",
   professor: "Jorge Luis Delgado Vite",
   members: [
     { name: "Llanos Alvarez, Guillermo Enrique", code: "U202422204" },
-    { name: "García Bernal, Daniela", code: "U202212994" },
+    { name: "Garcia Bernal, Daniela", code: "U202212994" },
     { name: "Condor Velasquez, Angela", code: "U202217165" },
     { name: "Chavez Valeriano, Milene", code: "U20241C489" },
     { name: "Ayvar Valdez, Piero", code: "U202312035" }
@@ -25,14 +25,14 @@ export const PROJECT_META: ProjectMeta = {
 export const SEED_CANDIDATES: Candidate[] = [
   {
     id: "cand-001",
-    name: "María Torres Ibarra",
+    name: "Maria Torres Ibarra",
     party: "Alianza Ciudadana",
     color: "#1D3096"
   },
   {
     id: "cand-002",
-    name: "Rafael Núñez Salcedo",
-    party: "Renovación Democrática",
+    name: "Rafael Nunez Salcedo",
+    party: "Renovacion Democratica",
     color: "#5B6EA6"
   },
   {
@@ -43,7 +43,7 @@ export const SEED_CANDIDATES: Candidate[] = [
   },
   {
     id: "cand-004",
-    name: "Valeria Cárdenas Rojas",
+    name: "Valeria Cardenas Rojas",
     party: "Frente Regional",
     color: "#7483B7"
   }
@@ -64,19 +64,19 @@ export const SEED_PLACES: VotingPlace[] = [
   {
     id: "local-001",
     zoneId: "zona-001",
-    name: "IE República del Perú",
+    name: "IE Republica del Peru",
     address: "Av. Central 481"
   },
   {
     id: "local-002",
     zoneId: "zona-002",
-    name: "Colegio San Martín",
-    address: "Jr. Los Próceres 204"
+    name: "Colegio San Martin",
+    address: "Jr. Los Proceres 204"
   },
   {
     id: "local-003",
     zoneId: "zona-003",
-    name: "IE José Olaya",
+    name: "IE Jose Olaya",
     address: "Av. Las Palmeras 1102"
   }
 ];
