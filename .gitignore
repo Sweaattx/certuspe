@@ -5,6 +5,6 @@ data/
 .env.*
 !.env.example
 .vercel/
-server*.log
+*.log
 *.png
 supabase/.temp/

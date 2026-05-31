@@ -3,13 +3,21 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "functions": {
-    "api/[...path].ts": {
+    "api/index.ts": {
       "maxDuration": 30
     }
   },
   "rewrites": [
     {
-      "source": "/:path((?!api/).*)",
+      "source": "/api",
+      "destination": "/api?path=/health"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "/api?path=/:path*"
+    },
+    {
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
