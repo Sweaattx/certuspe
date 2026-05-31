@@ -116,7 +116,10 @@ export async function api<T>(path: string, options: RequestInit = {}, token?: st
     headers
   });
   const contentType = response.headers.get("content-type") ?? "";
-  const payload = contentType.includes("application/json") ? await response.json() : null;
+  if (!contentType.includes("application/json")) {
+    throw new ApiError("La API devolvio una respuesta no valida.", response.status);
+  }
+  const payload = await response.json();
   if (!response.ok) {
     throw new ApiError(payload?.error ?? "No se pudo completar la operación.", response.status);
   }
