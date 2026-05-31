@@ -163,6 +163,23 @@ time,
   font-weight: 750;
 }
 
+.app-loading-error {
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+}
+
+.app-loading-error h1 {
+  margin: 8px 0 0;
+  font-size: 24px;
+}
+
+.app-loading-error p {
+  max-width: 520px;
+  margin: 0;
+  color: var(--muted);
+}
+
 .auth-page {
   min-height: 100dvh;
   display: grid;

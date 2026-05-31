@@ -84,8 +84,18 @@ function remoteStoreEnabled(): boolean {
   return Boolean(
     process.env.SUPABASE_URL &&
       process.env.SUPABASE_SERVICE_ROLE_KEY &&
-      (process.env.CERTUS_REMOTE_DB === "true" || process.env.VERCEL === "1")
+      remoteStoreRequested()
   );
+}
+
+function remoteStoreRequested(): boolean {
+  return process.env.CERTUS_REMOTE_DB === "true" || process.env.VERCEL === "1";
+}
+
+function assertRemoteStoreConfig(): void {
+  if (remoteStoreRequested() && (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY)) {
+    throw new Error("Faltan SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY para usar CERTUS_REMOTE_DB en Vercel.");
+  }
 }
 
 function getRemoteStoreClient(): SupabaseClient {
@@ -141,7 +151,8 @@ function createSeedDb(): CertusDb {
 }
 
 export async function ensureDb(): Promise<void> {
-  if (remoteStoreEnabled()) {
+  if (remoteStoreRequested()) {
+    assertRemoteStoreConfig();
     const client = getRemoteStoreClient();
     const existing = await client.from("system_settings").select("key").eq("key", remoteDbKey).maybeSingle();
     if (existing.error) {
@@ -177,7 +188,8 @@ function normalizeDb(db: CertusDb): CertusDb {
 
 export async function readDb(): Promise<CertusDb> {
   await ensureDb();
-  if (remoteStoreEnabled()) {
+  if (remoteStoreRequested()) {
+    assertRemoteStoreConfig();
     const client = getRemoteStoreClient();
     const { data, error } = await client.from("system_settings").select("value").eq("key", remoteDbKey).maybeSingle();
     if (error) {
@@ -195,7 +207,8 @@ export async function readDb(): Promise<CertusDb> {
 }
 
 export async function writeDb(db: CertusDb): Promise<void> {
-  if (remoteStoreEnabled()) {
+  if (remoteStoreRequested()) {
+    assertRemoteStoreConfig();
     const client = getRemoteStoreClient();
     const { error } = await client.from("system_settings").upsert({
       key: remoteDbKey,
@@ -215,7 +228,8 @@ export async function writeDb(db: CertusDb): Promise<void> {
 }
 
 export async function updateDb<T>(mutator: (db: CertusDb) => T | Promise<T>): Promise<T> {
-  if (remoteStoreEnabled()) {
+  if (remoteStoreRequested()) {
+    assertRemoteStoreConfig();
     const client = getRemoteStoreClient();
     for (let attempt = 0; attempt < 5; attempt += 1) {
       await ensureDb();

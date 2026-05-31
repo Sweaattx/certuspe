@@ -239,11 +239,20 @@ function getTableContext(db: Awaited<ReturnType<typeof readDb>>, tableKey: strin
 app.get(
   "/api/health",
   asyncRoute(async (req, res) => {
-    await ensureDb();
+    let database: { ready: boolean; error: string | null } = { ready: true, error: null };
+    try {
+      await ensureDb();
+    } catch (error) {
+      database = {
+        ready: false,
+        error: error instanceof Error ? error.message : "No se pudo inicializar la base de datos."
+      };
+    }
     res.json({
-      ok: true,
+      ok: database.ready,
       service: "CERTUS",
       publicAppUrl: getPublicAppUrl(req),
+      database,
       supabase: getSupabaseStatus(),
       at: new Date().toISOString()
     });

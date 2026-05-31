@@ -209,6 +209,7 @@ export function App() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bootError, setBootError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   const refresh = useCallback(
@@ -283,7 +284,10 @@ export function App() {
             }
           }
         }
-      } catch {
+      } catch (error) {
+        if (mounted) {
+          setBootError(error instanceof Error ? error.message : "No se pudo cargar la aplicacion.");
+        }
         localStorage.removeItem(tokenStorageKey);
       } finally {
         if (mounted) {
@@ -339,11 +343,24 @@ export function App() {
     return nextAuth;
   }
 
-  if (loading || !bootstrap) {
+  if (loading) {
     return (
       <div className="app-loading">
         <div className="brand-mark">C</div>
         <span>Cargando CERTUS</span>
+      </div>
+    );
+  }
+
+  if (!bootstrap) {
+    return (
+      <div className="app-loading app-loading-error">
+        <div className="brand-mark">C</div>
+        <h1>No se pudo cargar CERTUS</h1>
+        <p>{bootError ?? "La API no respondio correctamente."}</p>
+        <button type="button" className="primary-action" onClick={() => window.location.reload()}>
+          Reintentar
+        </button>
       </div>
     );
   }
