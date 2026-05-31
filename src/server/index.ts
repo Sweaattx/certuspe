@@ -754,8 +754,8 @@ function createSafeResults(db: Awaited<ReturnType<typeof readDb>>) {
   return computeResults(db);
 }
 
-await ensureDb();
 if (process.env.VERCEL !== "1") {
+  await ensureDb();
   app.listen(port, () => {
     console.log(`CERTUS API running on http://localhost:${port}`);
   });
