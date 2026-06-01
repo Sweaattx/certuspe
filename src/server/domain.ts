@@ -73,6 +73,9 @@ function roleCanAccessDetailed(role: Role): boolean {
 }
 
 function createVirtualBallotImage(tableCode: string, candidates: CertusDb["candidates"], markedCandidateIds: string[]): string {
+  const height = 370 + Math.max(0, candidates.length - 4) * 46;
+  const footerY = height - 34;
+  const frameHeight = height - 36;
   const rows = candidates
     .map((candidate, index) => {
       const y = 92 + index * 46;
@@ -87,13 +90,13 @@ function createVirtualBallotImage(tableCode: string, candidates: CertusDb["candi
     .join("");
 
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="440" height="320" viewBox="0 0 440 320">
-      <rect width="440" height="320" fill="#fbfcff"/>
-      <rect x="18" y="18" width="404" height="284" rx="4" fill="#ffffff" stroke="#d8dfec"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="440" height="${height}" viewBox="0 0 440 ${height}">
+      <rect width="440" height="${height}" fill="#fbfcff"/>
+      <rect x="18" y="18" width="404" height="${frameHeight}" rx="4" fill="#ffffff" stroke="#d8dfec"/>
       <text x="32" y="52" font-family="Arial" font-size="20" font-weight="700" fill="#1D3096">CERTUS</text>
       <text x="32" y="72" font-family="Arial" font-size="10" fill="#5B6EA6">Cedula virtual - mesa ${escapeSvgText(tableCode)}</text>
       ${rows}
-      <text x="32" y="286" font-family="Arial" font-size="9" fill="#667086">Voto emitido desde QR general con mesa asignada</text>
+      <text x="32" y="${footerY}" font-family="Arial" font-size="9" fill="#667086">Voto emitido desde QR general con mesa asignada</text>
     </svg>
   `;
   return `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`;
@@ -444,6 +447,12 @@ export function computeResults(db: CertusDb): ResultSummary {
       name: candidate.name,
       party: candidate.party,
       color: candidate.color,
+      partyCode: candidate.partyCode,
+      photoUrl: candidate.photoUrl,
+      logoUrl: candidate.logoUrl,
+      officialVotes: candidate.officialVotes,
+      officialValidPercentage: candidate.officialValidPercentage,
+      officialEmittedPercentage: candidate.officialEmittedPercentage,
       votes,
       percentage: totalVotes === 0 ? 0 : Number(((votes / totalVotes) * 100).toFixed(1))
     };

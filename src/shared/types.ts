@@ -49,6 +49,12 @@ export interface Candidate {
   name: string;
   party: string;
   color: string;
+  partyCode?: string;
+  photoUrl?: string;
+  logoUrl?: string;
+  officialVotes?: number;
+  officialValidPercentage?: number;
+  officialEmittedPercentage?: number;
 }
 
 export interface District {
@@ -186,6 +192,12 @@ export interface ResultSummary {
     name: string;
     party: string;
     color: string;
+    partyCode?: string;
+    photoUrl?: string;
+    logoUrl?: string;
+    officialVotes?: number;
+    officialValidPercentage?: number;
+    officialEmittedPercentage?: number;
     votes: number;
     percentage: number;
   }>;

@@ -1,5 +1,15 @@
 import type { Candidate, District, ProjectMeta, VotingPlace, VotingTable, Zone } from "./types";
 
+const onpeImageBaseUrl = "https://resultadoelectoral.onpe.gob.pe/assets/img-reales";
+
+function onpePartyLogo(code: string): string {
+  return `${onpeImageBaseUrl}/partidos/${code.padStart(8, "0")}.jpg`;
+}
+
+function onpeCandidatePhoto(dni: string): string {
+  return `${onpeImageBaseUrl}/candidatos/${dni}.jpg`;
+}
+
 export const CERTUS_COLORS = {
   primary: "#1D3096",
   secondary: "#5B6EA6"
@@ -25,27 +35,63 @@ export const PROJECT_META: ProjectMeta = {
 export const SEED_CANDIDATES: Candidate[] = [
   {
     id: "cand-001",
-    name: "Maria Torres Ibarra",
-    party: "Alianza Ciudadana",
-    color: "#1D3096"
+    name: "KEIKO SOFIA FUJIMORI HIGUCHI",
+    party: "FUERZA POPULAR",
+    color: "#f36c21",
+    partyCode: "8",
+    photoUrl: onpeCandidatePhoto("10001088"),
+    logoUrl: onpePartyLogo("8"),
+    officialVotes: 2877678,
+    officialValidPercentage: 17.192,
+    officialEmittedPercentage: 14.269
   },
   {
     id: "cand-002",
-    name: "Rafael Nunez Salcedo",
-    party: "Renovacion Democratica",
-    color: "#5B6EA6"
+    name: "ROBERTO HELBERT SANCHEZ PALOMINO",
+    party: "JUNTOS POR EL PERU",
+    color: "#d72638",
+    partyCode: "10",
+    photoUrl: onpeCandidatePhoto("16002918"),
+    logoUrl: onpePartyLogo("10"),
+    officialVotes: 2015114,
+    officialValidPercentage: 12.039,
+    officialEmittedPercentage: 9.992
   },
   {
     id: "cand-003",
-    name: "Juan Perez",
-    party: "Partido Del Progreso",
-    color: "#314BBD"
+    name: "RAFAEL BERNARDO LOPEZ ALIAGA CAZORLA",
+    party: "RENOVACION POPULAR",
+    color: "#0b60a8",
+    partyCode: "35",
+    photoUrl: onpeCandidatePhoto("07845838"),
+    logoUrl: onpePartyLogo("35"),
+    officialVotes: 1993905,
+    officialValidPercentage: 11.912,
+    officialEmittedPercentage: 9.887
   },
   {
     id: "cand-004",
-    name: "Valeria Cardenas Rojas",
-    party: "Frente Regional",
-    color: "#7483B7"
+    name: "JORGE NIETO MONTESINOS",
+    party: "PARTIDO DEL BUEN GOBIERNO",
+    color: "#22a06b",
+    partyCode: "16",
+    photoUrl: onpeCandidatePhoto("06506278"),
+    logoUrl: onpePartyLogo("16"),
+    officialVotes: 1837517,
+    officialValidPercentage: 10.978,
+    officialEmittedPercentage: 9.111
+  },
+  {
+    id: "cand-005",
+    name: "RICARDO PABLO BELMONT CASSINELLI",
+    party: "PARTIDO CIVICO OBRAS",
+    color: "#6a1b9a",
+    partyCode: "14",
+    photoUrl: onpeCandidatePhoto("09177250"),
+    logoUrl: onpePartyLogo("14"),
+    officialVotes: 1698903,
+    officialValidPercentage: 10.15,
+    officialEmittedPercentage: 8.424
   }
 ];
 

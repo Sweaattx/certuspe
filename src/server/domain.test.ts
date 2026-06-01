@@ -32,6 +32,7 @@ function dbFixture(): CertusDb {
     records: [],
     voterReceipts: [],
     emailReceipts: [],
+    qrHandoffs: [],
     incidences: [],
     auditLogs: []
   };

@@ -34,6 +34,15 @@ export interface StoredUser extends User {
   passwordHash: string;
 }
 
+export interface QrHandoff {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt: string | null;
+}
+
 export interface CertusDb {
   meta: ProjectMeta;
   process: {
@@ -54,6 +63,7 @@ export interface CertusDb {
   records: VoteRecord[];
   voterReceipts: VoterReceipt[];
   emailReceipts: EmailReceipt[];
+  qrHandoffs: QrHandoff[];
   incidences: Incidence[];
   auditLogs: AuditLog[];
 }
@@ -135,6 +145,7 @@ function createSeedDb(): CertusDb {
     records: [],
     voterReceipts: [],
     emailReceipts: [],
+    qrHandoffs: [],
     incidences: [],
     auditLogs: [
       {
@@ -183,6 +194,7 @@ export async function ensureDb(): Promise<void> {
 function normalizeDb(db: CertusDb): CertusDb {
   db.voterReceipts ??= [];
   db.emailReceipts ??= [];
+  db.qrHandoffs ??= [];
   return db;
 }
 

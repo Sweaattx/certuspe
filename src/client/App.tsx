@@ -33,6 +33,7 @@ import {
   type BootstrapData,
   type PreliminaryReport,
   ApiError,
+  createCitizenHandoff,
   createUser,
   crossValidate,
   loadBootstrap,
@@ -41,12 +42,14 @@ import {
   loadMe,
   loadRecords,
   loadReport,
+  loadResults,
   loadVirtualVote,
   loadVirtualVoteStatus,
   loadUsers,
   login,
   processScan,
   requestVoterCode,
+  redeemCitizenHandoff,
   submitVirtualVote,
   type VoterCodeResponse,
   type VoteEmailSummary,
@@ -167,6 +170,10 @@ function escapeSvgText(value: string): string {
 }
 
 function createBallotPreview(candidates: Candidate[], selectedIds: string[], serial: string): string {
+  const height = 404 + Math.max(0, candidates.length - 4) * 54;
+  const footerLineY = height - 38;
+  const footerTextY = height - 25;
+  const frameHeight = height - 44;
   const rows = candidates
     .map((candidate, index) => {
       const y = 104 + index * 54;
@@ -186,16 +193,16 @@ function createBallotPreview(candidates: Candidate[], selectedIds: string[], ser
 
   const safeSerial = escapeSvgText(serial.trim() || "CEDULA-DEMO");
   return encodeSvg(`
-    <svg xmlns="http://www.w3.org/2000/svg" width="500" height="360" viewBox="0 0 500 360">
-      <rect width="500" height="360" fill="#fbfcff"/>
-      <rect x="26" y="22" width="448" height="316" rx="4" fill="#ffffff" stroke="#d8dfec"/>
+    <svg xmlns="http://www.w3.org/2000/svg" width="500" height="${height}" viewBox="0 0 500 ${height}">
+      <rect width="500" height="${height}" fill="#fbfcff"/>
+      <rect x="26" y="22" width="448" height="${frameHeight}" rx="4" fill="#ffffff" stroke="#d8dfec"/>
       <text x="42" y="55" font-family="'IBM Plex Sans', Arial, sans-serif" font-size="21" font-weight="700" fill="#1D3096">CERTUS</text>
       <text x="42" y="75" font-family="'IBM Plex Mono', Consolas, monospace" font-size="9.5" font-weight="600" fill="#5b6ea6">CEDULA DIGITAL ${safeSerial}</text>
       <text x="368" y="55" font-family="'IBM Plex Mono', Consolas, monospace" font-size="8.5" font-weight="600" fill="#667086">SIMULACION 300DPI</text>
       <line x1="42" y1="88" x2="458" y2="88" stroke="#eef2f7"/>
       ${rows}
-      <line x1="42" y1="322" x2="458" y2="322" stroke="#eef2f7"/>
-      <text x="42" y="335" font-family="'IBM Plex Mono', Consolas, monospace" font-size="8.5" fill="#667086">Documento generado por terminal CERTUS</text>
+      <line x1="42" y1="${footerLineY}" x2="458" y2="${footerLineY}" stroke="#eef2f7"/>
+      <text x="42" y="${footerTextY}" font-family="'IBM Plex Mono', Consolas, monospace" font-size="8.5" fill="#667086">Documento generado por terminal CERTUS</text>
     </svg>
   `);
 }
@@ -211,6 +218,7 @@ export function App() {
   const [loading, setLoading] = useState(true);
   const [bootError, setBootError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [handoffError, setHandoffError] = useState<string | null>(null);
 
   const refresh = useCallback(
     async (nextAuth = auth) => {
@@ -253,6 +261,24 @@ export function App() {
           return;
         }
         setBootstrap(data);
+
+        const handoffToken = new URLSearchParams(window.location.search).get("handoff");
+
+        if (handoffToken && currentVoteRoute()) {
+          try {
+            const nextAuth = await redeemCitizenHandoff(handoffToken);
+            localStorage.setItem(tokenStorageKey, nextAuth.token);
+            setAuth(nextAuth);
+            setActiveView("results");
+            setHandoffError(null);
+            window.history.replaceState(null, "", window.location.pathname);
+            return;
+          } catch (error) {
+            localStorage.removeItem(tokenStorageKey);
+            setHandoffError(error instanceof ApiError ? error.message : "No se pudo validar el QR de acceso.");
+            window.history.replaceState(null, "", window.location.pathname);
+          }
+        }
 
         const savedToken = localStorage.getItem(tokenStorageKey);
 
@@ -375,6 +401,7 @@ export function App() {
           onRequestCode={handleVoterCodeRequest}
           onVerifyCode={handleVotingVoterAccess}
           onRefresh={refresh}
+          accessError={handoffError}
         />
       );
     }
@@ -385,6 +412,7 @@ export function App() {
         onRequestCode={handleVoterCodeRequest}
         onVerifyCode={handleVotingVoterAccess}
         onRefresh={refresh}
+        accessError={handoffError}
       />
     );
   }
@@ -404,8 +432,7 @@ export function App() {
     return (
       <CitizenQrOnlyPage
         processName={bootstrap.process.name}
-        publicBaseUrl={bootstrap.app.publicBaseUrl}
-        user={auth.user}
+        auth={auth}
         onLogout={handleLogout}
       />
     );
@@ -519,36 +546,45 @@ function viewTitle(view: ViewId): string {
 
 function CitizenQrOnlyPage({
   processName,
-  publicBaseUrl,
-  user,
+  auth,
   onLogout
 }: {
   processName: string;
-  publicBaseUrl: string;
-  user: User;
+  auth: AuthState;
   onLogout: () => void;
 }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
-  const url = votingUrl(undefined, publicBaseUrl);
+  const [handoffUrl, setHandoffUrl] = useState("");
+  const [expiresAt, setExpiresAt] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loadingQr, setLoadingQr] = useState(false);
+
+  const refreshQr = useCallback(async () => {
+    setLoadingQr(true);
+    setError(null);
+    try {
+      const handoff = await createCitizenHandoff(auth.token);
+      const qr = await QRCode.toDataURL(handoff.url, {
+        width: 260,
+        margin: 1,
+        color: {
+          dark: "#1D3096",
+          light: "#FFFFFF"
+        }
+      });
+      setHandoffUrl(handoff.url);
+      setExpiresAt(handoff.expiresAt);
+      setQrDataUrl(qr);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "No se pudo generar el QR ciudadano.");
+    } finally {
+      setLoadingQr(false);
+    }
+  }, [auth.token]);
 
   useEffect(() => {
-    let mounted = true;
-    QRCode.toDataURL(url, {
-      width: 260,
-      margin: 1,
-      color: {
-        dark: "#1D3096",
-        light: "#FFFFFF"
-      }
-    }).then((nextUrl) => {
-      if (mounted) {
-        setQrDataUrl(nextUrl);
-      }
-    });
-    return () => {
-      mounted = false;
-    };
-  }, [url]);
+    void refreshQr();
+  }, [refreshQr]);
 
   return (
     <main className="citizen-page" aria-label="Acceso ciudadano CERTUS">
@@ -564,24 +600,27 @@ function CitizenQrOnlyPage({
           <span className="eyebrow">{processName}</span>
           <h1>Escanea el QR para votar</h1>
           <p>
-            Tu cuenta ciudadana ya esta activa. Escanea este QR desde otro dispositivo o abre la votacion
-            directamente en esta pantalla.
+            Tu cuenta ciudadana ya esta activa. Esta pantalla solo muestra el QR para llevar la sesion al telefono y abrir la cedula virtual.
           </p>
         </div>
         <div className="citizen-qr-card">
           <div>
-            <span className="eyebrow">QR general aleatorio</span>
-            <strong>Asignacion automatica de mesa</strong>
-            <small>Al abrirlo, CERTUS asigna una de las mesas disponibles y muestra la cedula virtual.</small>
+            <span className="eyebrow">QR ciudadano temporal</span>
+            <strong>Sesion lista para escanear</strong>
+            <small>
+              El telefono usara tu cuenta y CERTUS asignara una mesa disponible. El acceso vence {expiresAt ? formatDate(expiresAt) : "en unos minutos"}.
+            </small>
           </div>
           {qrDataUrl ? <img src={qrDataUrl} alt="QR general para votar" /> : <div className="qr-placeholder" />}
-          <a className="primary-button wide" href={url}>
-            Abrir votacion ahora
-          </a>
+          <button className="ghost-button wide" type="button" onClick={refreshQr} disabled={loadingQr}>
+            {loadingQr ? "Generando QR" : "Actualizar QR"}
+          </button>
+          {handoffUrl ? <code>{handoffUrl}</code> : null}
+          {error ? <p className="field-error">{error}</p> : null}
         </div>
         <div className="citizen-account">
           <span>Cuenta conectada</span>
-          <strong>{user.email}</strong>
+          <strong>{auth.user.email}</strong>
           <button className="ghost-button" type="button" onClick={onLogout}>
             <SignOut size={17} />
             Salir
@@ -597,13 +636,15 @@ function RandomVoteRoute({
   tables,
   onRequestCode,
   onVerifyCode,
-  onRefresh
+  onRefresh,
+  accessError
 }: {
   auth: AuthState | null;
   tables: BootstrapData["tables"];
   onRequestCode: (input: VoterIdentityInput) => Promise<VoterCodeResponse>;
   onVerifyCode: (input: VoterCodeInput) => Promise<AuthState | null>;
   onRefresh: (auth?: AuthState | null) => Promise<void>;
+  accessError?: string | null;
 }) {
   const [assignedTableId] = useState(() => randomVotingTableId(tables));
 
@@ -641,6 +682,7 @@ function RandomVoteRoute({
       onRequestCode={onRequestCode}
       onVerifyCode={onVerifyCode}
       onRefresh={onRefresh}
+      accessError={accessError}
     />
   );
 }
@@ -881,13 +923,15 @@ function VirtualVotePage({
   tableId,
   onRequestCode,
   onVerifyCode,
-  onRefresh
+  onRefresh,
+  accessError
 }: {
   auth: AuthState | null;
   tableId: string;
   onRequestCode: (input: VoterIdentityInput) => Promise<VoterCodeResponse>;
   onVerifyCode: (input: VoterCodeInput) => Promise<AuthState | null>;
   onRefresh: (auth?: AuthState | null) => Promise<void>;
+  accessError?: string | null;
 }) {
   const [data, setData] = useState<VirtualVoteData | null>(null);
   const [status, setStatus] = useState<VirtualVoteStatus | null>(null);
@@ -896,6 +940,9 @@ function VirtualVotePage({
   const [submitting, setSubmitting] = useState<"vote" | null>(null);
   const [submittedRecord, setSubmittedRecord] = useState<VoteRecord | null>(null);
   const [confirmationEmail, setConfirmationEmail] = useState<VoteEmailSummary | null>(null);
+  const [showResults, setShowResults] = useState(false);
+  const [postVoteResults, setPostVoteResults] = useState<ResultSummary | null>(null);
+  const [resultsLoading, setResultsLoading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -973,11 +1020,30 @@ function VirtualVotePage({
             email: response.email ?? null
           }
       });
+      try {
+        setPostVoteResults(await loadResults());
+      } catch {
+        setPostVoteResults(null);
+      }
       await onRefresh(auth);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se pudo registrar el voto.");
     } finally {
       setSubmitting(null);
+    }
+  }
+
+  async function showPostVoteResults() {
+    setResultsLoading(true);
+    setError(null);
+    try {
+      const results = postVoteResults ?? (await loadResults());
+      setPostVoteResults(results);
+      setShowResults(true);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "No se pudieron cargar los resultados.");
+    } finally {
+      setResultsLoading(false);
     }
   }
 
@@ -1019,6 +1085,7 @@ function VirtualVotePage({
             <h2>Valida tu DNI para votar</h2>
             <p>El QR es fijo. El DNI y el correo verificado evitan votos duplicados dentro del proceso.</p>
             <VoterAccessForm compact onRequestCode={onRequestCode} onVerifyCode={onVerifyCode} />
+            {accessError ? <p className="field-error">{accessError}</p> : null}
           </div>
         ) : auth.user.role !== "citizen" ? (
           <div className="vote-auth-panel">
@@ -1040,6 +1107,11 @@ function VirtualVotePage({
               </div>
             </div>
             <code>{submittedRecord?.integrityHash.slice(0, 24) ?? status?.receipt?.recordId}</code>
+            <button className="primary-button wide" type="button" onClick={showPostVoteResults} disabled={resultsLoading}>
+              {resultsLoading ? "Cargando resultados" : "Mostrar resultados"}
+            </button>
+            {showResults && postVoteResults ? <OnpeResultsPanel results={postVoteResults} /> : null}
+            {error ? <p className="field-error">{error}</p> : null}
           </div>
         ) : (
           <div className="virtual-ballot">
@@ -1055,7 +1127,8 @@ function VirtualVotePage({
                   type="button"
                   onClick={() => toggleCandidate(candidate.id)}
                 >
-                  <span style={{ background: candidate.color }} />
+                  <CandidateMedia candidate={candidate} compact />
+                  <span className="candidate-color" style={{ background: candidate.color }} />
                   <strong>{candidate.name}</strong>
                   <small>{candidate.party}</small>
                   <i aria-hidden="true" />
@@ -1402,6 +1475,108 @@ function stateLabel(state: VoteRecord["trace"][number]["state"]): string {
   return labels[state];
 }
 
+type CandidateVisual = Pick<
+  Candidate,
+  "name" | "party" | "color" | "partyCode" | "photoUrl" | "logoUrl" | "officialVotes" | "officialValidPercentage"
+>;
+
+function fallbackInitials(value: string): string {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("");
+}
+
+function formatNumber(value: number | undefined): string {
+  return new Intl.NumberFormat("es-PE").format(value ?? 0);
+}
+
+function formatPercent(value: number | undefined): string {
+  return `${Number(value ?? 0).toFixed(3).replace(/\.?0+$/, "")}%`;
+}
+
+function CandidateMedia({ candidate, compact = false }: { candidate: CandidateVisual; compact?: boolean }) {
+  const [photoFailed, setPhotoFailed] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+  return (
+    <span className={compact ? "candidate-media compact" : "candidate-media"}>
+      <span className="party-logo" style={{ borderColor: candidate.color }}>
+        {candidate.logoUrl && !logoFailed ? (
+          <img src={candidate.logoUrl} alt={`Logo ${candidate.party}`} onError={() => setLogoFailed(true)} />
+        ) : (
+          <span>{candidate.partyCode ?? "ONPE"}</span>
+        )}
+      </span>
+      <span className="candidate-photo" style={{ borderColor: candidate.color }}>
+        {candidate.photoUrl && !photoFailed ? (
+          <img src={candidate.photoUrl} alt={candidate.name} onError={() => setPhotoFailed(true)} />
+        ) : (
+          <span>{fallbackInitials(candidate.name)}</span>
+        )}
+      </span>
+    </span>
+  );
+}
+
+function OnpeResultsPanel({ results }: { results: ResultSummary }) {
+  const rows = [...results.byCandidate].sort((a, b) => {
+    if (b.votes !== a.votes) {
+      return b.votes - a.votes;
+    }
+    return (b.officialVotes ?? 0) - (a.officialVotes ?? 0);
+  });
+  const maxVotes = Math.max(1, ...rows.map((item) => item.votes));
+  const maxOfficial = Math.max(1, ...rows.map((item) => item.officialValidPercentage ?? 0));
+  return (
+    <div className="onpe-panel">
+      <div className="onpe-panel-head">
+        <div>
+          <span className="eyebrow">ONPE | CERTUSPE</span>
+          <h3>Resultados presidenciales</h3>
+          <p>Conteo preliminar del proceso virtual con candidatos de primera vuelta.</p>
+        </div>
+        <div className="onpe-update">
+          <span>Actualizado</span>
+          <strong>{formatDate(results.generatedAt)}</strong>
+        </div>
+      </div>
+      <div className="onpe-stats">
+        <Metric label="Total" value={formatNumber(results.totalVotes)} />
+        <Metric label="Validos" value={formatNumber(results.validVotes)} />
+        <Metric label="Nulos" value={formatNumber(results.nullVotes)} />
+        <Metric label="Blancos" value={formatNumber(results.blankVotes)} />
+      </div>
+      <div className="onpe-chart" aria-label="Grafico de resultados presidenciales">
+        {rows.map((item, index) => (
+          <div className="onpe-row" key={item.candidateId}>
+            <span className="onpe-rank">{index + 1}</span>
+            <CandidateMedia candidate={item} />
+            <div className="onpe-name">
+              <strong>{item.name}</strong>
+              <span>{item.party}</span>
+            </div>
+            <div className="onpe-bars">
+              <div className="onpe-main-bar">
+                <span style={{ width: `${Math.max(item.votes > 0 ? 3 : 0, (item.votes / maxVotes) * 100)}%`, background: item.color }} />
+              </div>
+              <div className="onpe-reference-bar">
+                <span style={{ width: `${((item.officialValidPercentage ?? 0) / maxOfficial) * 100}%`, background: item.color }} />
+              </div>
+            </div>
+            <div className="onpe-count">
+              <strong>{formatPercent(item.percentage)}</strong>
+              <span>{formatNumber(item.votes)} votos</span>
+              <small>Ref. ONPE {formatPercent(item.officialValidPercentage)}</small>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ResultsView({ results, data }: { results: ResultSummary; data: BootstrapData }) {
   const maxVotes = Math.max(1, ...results.byCandidate.map((item) => item.votes));
   return (
@@ -1416,7 +1591,7 @@ function ResultsView({ results, data }: { results: ResultSummary; data: Bootstra
       <div className="panel chart-panel">
         <div className="section-heading row">
           <div>
-            <span className="eyebrow">Asltima actualizacion {formatDate(results.generatedAt)}</span>
+            <span className="eyebrow">Ultima actualizacion {formatDate(results.generatedAt)}</span>
             <h2>Conteo preliminar</h2>
           </div>
           <select aria-label="Tipo de grafico">
@@ -1426,6 +1601,7 @@ function ResultsView({ results, data }: { results: ResultSummary; data: Bootstra
         <div className="bar-chart" aria-label="Resultados por candidato">
           {results.byCandidate.map((item) => (
             <div className="bar-row" key={item.candidateId}>
+              <CandidateMedia candidate={item} compact />
               <div>
                 <strong>{item.name}</strong>
                 <span>{item.party}</span>

@@ -4,7 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "node:path";
-import { randomInt, randomUUID } from "node:crypto";
+import { randomBytes, randomInt, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { EmailReceipt, Role, User, VoteRecord, VoteType } from "../shared/types";
 import { createPasswordRecord, createSession, decryptPayload, destroySession, getSession, sha256, verifyPassword } from "./security";
@@ -86,6 +86,10 @@ const voterCodeSchema = z.object({
   code: z.string().trim().regex(/^\d{6}$/, "Ingresa el codigo de 6 digitos.")
 });
 
+const handoffSchema = z.object({
+  token: z.string().trim().min(32).max(128).regex(/^[A-Za-z0-9_-]+$/)
+});
+
 const processBallotSchema = z.object({
   ballotSerial: z.string().min(3).max(40),
   tableId: z.string().min(1),
@@ -129,6 +133,7 @@ interface PendingVoterCode {
 }
 
 const voterCodeTtlMs = 1000 * 60 * 10;
+const handoffTtlMs = 1000 * 60 * 15;
 const pendingVoterCodes = new Map<string, PendingVoterCode>();
 
 function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
@@ -168,6 +173,20 @@ function createVoterCodeEmail(name: string, code: string) {
     "El codigo vence en 10 minutos. Si no solicitaste este acceso, puedes ignorar este mensaje.",
     "CERTUSPE"
   ].join("\n");
+}
+
+function pruneQrHandoffs(db: Awaited<ReturnType<typeof readDb>>, timestamp: number) {
+  db.qrHandoffs = db.qrHandoffs.filter((handoff) => {
+    const expired = Date.parse(handoff.expiresAt) <= timestamp;
+    const usedLongAgo = handoff.usedAt ? Date.parse(handoff.usedAt) <= timestamp - handoffTtlMs : false;
+    return !expired && !usedLongAgo;
+  });
+}
+
+function createHandoffUrl(req: Request, token: string): string {
+  const url = new URL("/votar", getPublicAppUrl(req));
+  url.searchParams.set("handoff", token);
+  return url.toString();
 }
 
 function publicEmailReceipt(email: EmailReceipt | null) {
@@ -426,6 +445,63 @@ app.post(
     });
 
     res.json(await authResponse(user, "login", "Inicio ciudadano con codigo de verificacion."));
+  })
+);
+
+app.post(
+  "/api/auth/handoff",
+  asyncRoute(async (req, res) => {
+    const actor = await requireUser(req, ["citizen"]);
+    const token = randomBytes(32).toString("base64url");
+    const createdAt = new Date();
+    const expiresAt = new Date(createdAt.getTime() + handoffTtlMs);
+    await updateDb((db) => {
+      pruneQrHandoffs(db, createdAt.getTime());
+      db.qrHandoffs.push({
+        id: randomUUID(),
+        userId: actor.id,
+        tokenHash: sha256(token),
+        createdAt: createdAt.toISOString(),
+        expiresAt: expiresAt.toISOString(),
+        usedAt: null
+      });
+      db.auditLogs.push(
+        createAuditLog(actor.id, "qr_handoff_created", "user", actor.id, "QR ciudadano temporal generado.")
+      );
+    });
+
+    res.json({
+      url: createHandoffUrl(req, token),
+      expiresAt: expiresAt.toISOString(),
+      expiresInSeconds: Math.round(handoffTtlMs / 1000)
+    });
+  })
+);
+
+app.post(
+  "/api/auth/handoff/redeem",
+  asyncRoute(async (req, res) => {
+    const input = handoffSchema.parse(req.body);
+    const tokenHash = sha256(input.token);
+    const timestamp = Date.now();
+    const user = await updateDb((db) => {
+      pruneQrHandoffs(db, timestamp);
+      const handoff = db.qrHandoffs.find((item) => item.tokenHash === tokenHash && !item.usedAt);
+      if (!handoff || Date.parse(handoff.expiresAt) <= timestamp) {
+        throw new DomainError("El QR de acceso expiro. Valida tu cuenta nuevamente.", 401);
+      }
+      const storedUser = db.users.find((item) => item.id === handoff.userId && item.role === "citizen");
+      if (!storedUser || storedUser.status !== "active") {
+        throw new DomainError("La cuenta ciudadana no esta activa.", 401);
+      }
+      handoff.usedAt = new Date(timestamp).toISOString();
+      db.auditLogs.push(
+        createAuditLog(storedUser.id, "qr_handoff_redeemed", "user", storedUser.id, "Sesion ciudadana transferida por QR.")
+      );
+      return storedUser;
+    });
+
+    res.json(await authResponse(user, "handoff_login", "Ingreso ciudadano desde QR autenticado."));
   })
 );
 app.post(
@@ -767,4 +843,3 @@ if (process.env.VERCEL !== "1") {
 }
 
 export default app;
-

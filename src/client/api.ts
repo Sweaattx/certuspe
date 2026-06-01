@@ -78,6 +78,12 @@ export interface VoterCodeResponse {
   provider: "local_outbox" | "smtp" | "resend";
 }
 
+export interface HandoffResponse {
+  url: string;
+  expiresAt: string;
+  expiresInSeconds: number;
+}
+
 export interface PreliminaryReport {
   id: string;
   generatedAt: string;
@@ -151,8 +157,29 @@ export async function verifyVoterCode(input: {
   });
 }
 
+export async function createCitizenHandoff(token: string): Promise<HandoffResponse> {
+  return api<HandoffResponse>(
+    "/api/auth/handoff",
+    {
+      method: "POST"
+    },
+    token
+  );
+}
+
+export async function redeemCitizenHandoff(token: string): Promise<AuthState> {
+  return api<AuthState>("/api/auth/handoff/redeem", {
+    method: "POST",
+    body: JSON.stringify({ token })
+  });
+}
+
 export async function loadBootstrap(): Promise<BootstrapData> {
   return api<BootstrapData>("/api/bootstrap");
+}
+
+export async function loadResults(): Promise<ResultSummary> {
+  return api<ResultSummary>("/api/results");
 }
 
 export async function loadVirtualVote(tableId: string): Promise<VirtualVoteData> {
