@@ -715,21 +715,72 @@ time,
   overflow: hidden;
 }
 
-.scan-stage-list span {
+.scan-stage-list button {
   min-height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-right: 1px solid var(--line);
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
   background: #fff;
   color: var(--primary);
   padding: 7px 11px;
   font-size: 11px;
   font-weight: 650;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
 }
 
-.scan-stage-list span:last-child {
+.scan-stage-list button:hover,
+.scan-stage-list button:focus-visible {
+  background: #f2f5ff;
+}
+
+.scan-stage-list button.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.scan-stage-list button:last-child {
   border-right: 0;
+}
+
+.scan-process-panel {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(260px, 1fr);
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 14px 16px;
+}
+
+.scan-process-panel h3 {
+  margin-top: 5px;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.scan-process-panel p {
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.scan-process-panel ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+  color: var(--ink);
+}
+
+.scan-process-panel li {
+  padding-left: 3px;
+  line-height: 1.45;
 }
 
 .form-grid {
@@ -2017,6 +2068,10 @@ dd {
 
   .scan-stage-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scan-process-panel {
+    grid-template-columns: 1fr;
   }
 
   .auth-card .auth-form,

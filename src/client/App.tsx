@@ -59,11 +59,69 @@ import {
 } from "./api";
 
 type ViewId = "scan" | "results" | "detail" | "reports" | "users" | "history" | "project";
+type ScanStageId = "capture" | "processing" | "hash" | "confirmation";
 type VoterIdentityInput = { name: string; dni: string; email: string };
 type VoterCodeInput = { dni: string; email: string; code: string };
 
 const tokenStorageKey = "certus-token";
 const randomVoteRoute = "__random_vote_route__";
+const scanStages: Array<{
+  id: ScanStageId;
+  label: string;
+  title: string;
+  summary: string;
+  details: string[];
+  evidence: string;
+}> = [
+  {
+    id: "capture",
+    label: "Captura",
+    title: "Captura fisica de la cedula",
+    summary: "El miembro de mesa inserta la cedula en el terminal de escaneo para obtener una imagen digital verificable.",
+    details: [
+      "Se registra mesa, codigo de cedula, fecha y operador responsable.",
+      "La imagen queda como respaldo digital antes de depositar la cedula en la urna fisica.",
+      "El QR se usa solo como demostracion cuando no hay escaner real disponible."
+    ],
+    evidence: "RF-001 / US-001"
+  },
+  {
+    id: "processing",
+    label: "Procesamiento",
+    title: "Procesamiento de imagen e IA",
+    summary: "CERTUS interpreta la imagen capturada, identifica marcas y determina si existe un candidato seleccionado.",
+    details: [
+      "El motor detecta marcas realizadas por el votante dentro de la cedula.",
+      "El sistema clasifica el voto como valido, en blanco o nulo.",
+      "La validacion automatica reduce errores de conteo manual y observaciones tardias."
+    ],
+    evidence: "RF-002 / RF-003 / RF-005"
+  },
+  {
+    id: "hash",
+    label: "Hash",
+    title: "Trazabilidad y respaldo",
+    summary: "Cada registro confirmado genera una huella unica para auditoria sin exponer la identidad del voto.",
+    details: [
+      "Se genera un hash con datos del registro, mesa, tipo de voto y marca temporal.",
+      "La imagen digital y el voto procesado se guardan en repositorios separados.",
+      "El auditor puede contrastar actas fisicas con registros digitales ante inconsistencias."
+    ],
+    evidence: "RF-013 / RF-014 / RF-015"
+  },
+  {
+    id: "confirmation",
+    label: "Confirmacion",
+    title: "Transmision segura y confirmacion",
+    summary: "El terminal envia el registro al servidor central y deja evidencia para resultados preliminares.",
+    details: [
+      "La transmision se realiza de forma segura hacia el servidor central.",
+      "El sistema bloquea duplicados y registra acciones para auditoria.",
+      "Los resultados preliminares quedan disponibles para usuarios autorizados y ciudadania."
+    ],
+    evidence: "RF-008 / RF-009 / RF-018 / RF-020"
+  }
+];
 
 function currentVoteRoute(): string | null {
   if (window.location.pathname === "/votar") {
@@ -1245,7 +1303,9 @@ function ScanView({
   const [error, setError] = useState<string | null>(null);
   const [durationMs, setDurationMs] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [activeStageId, setActiveStageId] = useState<ScanStageId>("capture");
   const canProcess = auth?.user.role === "admin" || auth?.user.role === "member";
+  const activeStage = scanStages.find((stage) => stage.id === activeStageId) ?? scanStages[0];
 
   useEffect(() => {
     setImageData(createBallotPreview(data.candidates, selectedIds, serial));
@@ -1310,11 +1370,38 @@ function ScanView({
           <span className="eyebrow">Terminal activa</span>
           <h2>Escaneo y registro de cedulas</h2>
         </div>
-        <div className="scan-stage-list" aria-label="Estados del registro">
-          <span>Captura</span>
-          <span>Procesamiento</span>
-          <span>Hash</span>
-          <span>Confirmacion</span>
+        <div className="scan-stage-list" role="tablist" aria-label="Proceso original CERTUS">
+          {scanStages.map((stage) => (
+            <button
+              key={stage.id}
+              className={stage.id === activeStage.id ? "active" : ""}
+              type="button"
+              role="tab"
+              aria-selected={stage.id === activeStage.id}
+              aria-controls="scan-stage-detail"
+              id={`scan-stage-${stage.id}`}
+              onClick={() => setActiveStageId(stage.id)}
+            >
+              {stage.label}
+            </button>
+          ))}
+        </div>
+        <div
+          className="scan-process-panel"
+          id="scan-stage-detail"
+          role="tabpanel"
+          aria-labelledby={`scan-stage-${activeStage.id}`}
+        >
+          <div>
+            <span className="eyebrow">{activeStage.evidence}</span>
+            <h3>{activeStage.title}</h3>
+            <p>{activeStage.summary}</p>
+          </div>
+          <ol>
+            {activeStage.details.map((detail) => (
+              <li key={detail}>{detail}</li>
+            ))}
+          </ol>
         </div>
       </div>
       <form className="panel scan-form" onSubmit={submit}>
