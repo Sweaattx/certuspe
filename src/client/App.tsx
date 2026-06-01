@@ -132,13 +132,24 @@ function currentVoteRoute(): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+function currentVoteRouteRequiresVoterAccess(): boolean {
+  return new URLSearchParams(window.location.search).get("registro") === "1";
+}
+
 function currentResultsRoute(): boolean {
   return window.location.pathname === "/resultados";
 }
 
-function votingUrl(tableId?: string, baseUrl?: string | null): string {
+function clearVoterRegistrationModeFromUrl() {
+  if (currentVoteRouteRequiresVoterAccess()) {
+    window.history.replaceState(null, "", window.location.pathname);
+  }
+}
+
+function votingUrl(tableId?: string, baseUrl?: string | null, forceVoterAccess = false): string {
   const origin = baseUrl?.trim().replace(/\/+$/, "") || window.location.origin;
-  return tableId ? `${origin}/votar/${encodeURIComponent(tableId)}` : `${origin}/votar`;
+  const path = tableId ? `${origin}/votar/${encodeURIComponent(tableId)}` : `${origin}/votar`;
+  return forceVoterAccess ? `${path}?registro=1` : path;
 }
 
 function UpcLogo({ large = false }: { large?: boolean }) {
@@ -399,7 +410,7 @@ export function App() {
 
         const savedToken = localStorage.getItem(tokenStorageKey);
 
-        if (savedToken) {
+        if (savedToken && !currentVoteRouteRequiresVoterAccess()) {
           const me = await loadMe(savedToken);
           const nextAuth = { token: savedToken, user: me.user };
           setAuth(nextAuth);
@@ -468,6 +479,7 @@ export function App() {
     const nextAuth = await verifyVoterCode(input);
     localStorage.setItem(tokenStorageKey, nextAuth.token);
     setAuth(nextAuth);
+    clearVoterRegistrationModeFromUrl();
     void refresh(nextAuth).catch((error) => {
       setNotice(error instanceof Error ? error.message : "No se pudo actualizar la informacion.");
     });
@@ -781,7 +793,10 @@ function RandomVoteRoute({
 
   useEffect(() => {
     if (assignedTableId) {
-      window.history.replaceState(null, "", `/votar/${encodeURIComponent(assignedTableId)}`);
+      const nextRoute = currentVoteRouteRequiresVoterAccess()
+        ? `/votar/${encodeURIComponent(assignedTableId)}?registro=1`
+        : `/votar/${encodeURIComponent(assignedTableId)}`;
+      window.history.replaceState(null, "", nextRoute);
     }
   }, [assignedTableId]);
 
@@ -1529,7 +1544,7 @@ function ScanView({
 function VirtualQrPanel({ tables, publicBaseUrl }: { tables: BootstrapData["tables"]; publicBaseUrl: string }) {
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [expanded, setExpanded] = useState(false);
-  const url = votingUrl(undefined, publicBaseUrl);
+  const url = votingUrl(undefined, publicBaseUrl, true);
   const availableTables = tables.filter((item) => item.status === "En progreso");
   const tableCodes = (availableTables.length > 0 ? availableTables : tables).map((item) => item.code).join(", ");
 
@@ -1556,34 +1571,34 @@ function VirtualQrPanel({ tables, publicBaseUrl }: { tables: BootstrapData["tabl
     <div className="virtual-qr-panel">
       <div>
         <span className="eyebrow">Escaner virtual</span>
-        <strong>QR general aleatorio</strong>
-        <small>Proyecta o imprime este QR. El sistema asigna una mesa al azar entre {tableCodes}.</small>
+        <strong>QR publico de votantes</strong>
+        <small>Proyecta o imprime este QR. El votante valida DNI y correo antes de recibir una mesa al azar entre {tableCodes}.</small>
         <div className="qr-actions">
           <button className="ghost-button" type="button" onClick={() => setExpanded(true)}>
             Mostrar QR
           </button>
           <a className="ghost-button" href={url} target="_blank" rel="noreferrer">
-            Abrir votacion aleatoria
+            Probar registro y voto
           </a>
         </div>
       </div>
-      {qrDataUrl ? <img src={qrDataUrl} alt="QR general de votacion aleatoria" /> : null}
+      {qrDataUrl ? <img src={qrDataUrl} alt="QR publico para registro y votacion" /> : null}
 
       {expanded ? (
         <div className="modal-backdrop" role="presentation">
           <div className="modal-panel qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title">
             <div className="section-heading">
               <span className="eyebrow">Mesas disponibles</span>
-              <h2 id="qr-title">QR general de votacion</h2>
+              <h2 id="qr-title">QR publico de registro</h2>
             </div>
-            {qrDataUrl ? <img src={qrDataUrl} alt="QR general ampliado" /> : null}
+            {qrDataUrl ? <img src={qrDataUrl} alt="QR publico ampliado para registro y votacion" /> : null}
             <code>{url}</code>
             <div className="modal-actions">
               <button className="ghost-button" type="button" onClick={() => setExpanded(false)}>
                 Cerrar
               </button>
               <a className="primary-button" href={url} target="_blank" rel="noreferrer">
-                Abrir votacion aleatoria
+                Probar registro y voto
               </a>
             </div>
           </div>
