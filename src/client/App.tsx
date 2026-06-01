@@ -79,6 +79,10 @@ function votingUrl(tableId?: string, baseUrl?: string | null): string {
   return tableId ? `${origin}/votar/${encodeURIComponent(tableId)}` : `${origin}/votar`;
 }
 
+function UpcLogo({ large = false }: { large?: boolean }) {
+  return <img className={large ? "brand-logo large" : "brand-logo"} src="/upc-logo.png" alt="Logo UPC" />;
+}
+
 function randomVotingTableId(tables: BootstrapData["tables"]): string | null {
   const openTables = tables.filter((table) => table.status === "En progreso");
   const pool = openTables.length > 0 ? openTables : tables;
@@ -372,8 +376,7 @@ export function App() {
   if (loading) {
     return (
       <div className="app-loading">
-        <div className="brand-mark">C</div>
-        <span>Cargando CERTUS</span>
+        <span className="loading-title">Cargando CERTUS</span>
       </div>
     );
   }
@@ -381,7 +384,6 @@ export function App() {
   if (!bootstrap) {
     return (
       <div className="app-loading app-loading-error">
-        <div className="brand-mark">C</div>
         <h1>No se pudo cargar CERTUS</h1>
         <p>{bootError ?? "La API no respondio correctamente."}</p>
         <button type="button" className="primary-action" onClick={() => window.location.reload()}>
@@ -442,7 +444,7 @@ export function App() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="brand-mark">C</div>
+          <UpcLogo />
           <div>
             <strong>CERTUS</strong>
             <span>Conteo preliminar</span>
@@ -590,7 +592,7 @@ function CitizenQrOnlyPage({
     <main className="citizen-page" aria-label="Acceso ciudadano CERTUS">
       <section className="citizen-shell">
         <div className="brand auth-brand">
-          <div className="brand-mark">C</div>
+          <UpcLogo />
           <div>
             <strong>CERTUS</strong>
             <span>Votacion por QR</span>
@@ -659,7 +661,7 @@ function RandomVoteRoute({
       <main className="vote-page">
         <section className="vote-shell">
           <div className="brand auth-brand">
-            <div className="brand-mark">C</div>
+            <UpcLogo />
             <div>
               <strong>CERTUS</strong>
               <span>Cedula virtual</span>
@@ -1063,7 +1065,7 @@ function VirtualVotePage({
       <section className="vote-shell">
         <div className="vote-header">
           <div className="brand auth-brand">
-            <div className="brand-mark">C</div>
+            <UpcLogo />
             <div>
               <strong>CERTUS</strong>
               <span>Cedula virtual</span>
@@ -2079,7 +2081,7 @@ function ProjectView({ data }: { data: BootstrapData }) {
   return (
     <section className="project-layout">
       <div className="panel project-cover">
-        <div className="brand-mark large">C</div>
+        <UpcLogo large />
         <span>{data.meta.university}</span>
         <h2>{data.meta.systemName}</h2>
         <p>{data.meta.subtitle}</p>

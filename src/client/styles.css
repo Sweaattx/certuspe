@@ -158,9 +158,18 @@ time,
   min-height: 100dvh;
   display: grid;
   place-items: center;
-  gap: 14px;
+  padding: 24px;
   color: var(--primary);
   font-weight: 750;
+}
+
+.loading-title {
+  color: var(--primary);
+  font-size: clamp(26px, 5vw, 44px);
+  font-weight: 750;
+  letter-spacing: 0;
+  line-height: 1.05;
+  text-align: center;
 }
 
 .app-loading-error {
@@ -283,22 +292,17 @@ time,
   font-size: 12px;
 }
 
-.brand-mark {
+.brand-logo {
   width: 38px;
   height: 38px;
-  display: grid;
-  place-items: center;
+  display: block;
   border-radius: var(--radius);
-  background: var(--primary);
-  color: #fff;
-  font-weight: 750;
-  letter-spacing: 0;
+  object-fit: contain;
 }
 
-.brand-mark.large {
+.brand-logo.large {
   width: 64px;
   height: 64px;
-  font-size: 28px;
 }
 
 .nav-list {
