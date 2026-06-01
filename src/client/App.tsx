@@ -488,8 +488,15 @@ export function App() {
 
   if (loading) {
     return (
-      <div className="app-loading">
-        <span className="loading-title">Cargando CERTUS</span>
+      <div className="app-loading" aria-live="polite" aria-label="Cargando CERTUS">
+        <div className="loading-sequence">
+          <span className="loading-kicker">Cargando sistema</span>
+          <span className="loading-title">CERTUS</span>
+          <div className="loading-bar" aria-hidden="true">
+            <span />
+          </div>
+          <span className="loading-status">Preparando proceso electoral</span>
+        </div>
       </div>
     );
   }

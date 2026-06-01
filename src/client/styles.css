@@ -163,13 +163,97 @@ time,
   font-weight: 750;
 }
 
+.loading-sequence {
+  width: min(360px, 82vw);
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+}
+
+.loading-kicker,
+.loading-status {
+  font-family:
+    "IBM Plex Mono",
+    "Cascadia Code",
+    "JetBrains Mono",
+    Consolas,
+    monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--secondary);
+  text-transform: uppercase;
+}
+
 .loading-title {
   color: var(--primary);
-  font-size: clamp(26px, 5vw, 44px);
-  font-weight: 750;
+  font-size: clamp(42px, 10vw, 86px);
+  font-weight: 850;
   letter-spacing: 0;
-  line-height: 1.05;
+  line-height: 0.92;
   text-align: center;
+  animation: certus-title-pulse 1.15s steps(2, end) infinite;
+  will-change: opacity, transform;
+}
+
+.loading-bar {
+  width: 100%;
+  height: 11px;
+  overflow: hidden;
+  border: 1px solid rgba(29, 48, 150, 0.22);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(29, 48, 150, 0.08), rgba(91, 110, 166, 0.1)),
+    #fff;
+}
+
+.loading-bar span {
+  display: block;
+  width: 44%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+  animation: certus-loading-bar 1.35s cubic-bezier(0.66, 0, 0.34, 1) infinite;
+  will-change: transform;
+}
+
+.loading-status {
+  color: var(--muted);
+}
+
+@keyframes certus-title-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  48% {
+    opacity: 1;
+    transform: translateY(-1px) scale(1.015);
+  }
+
+  50%,
+  74% {
+    opacity: 0.18;
+    transform: translateY(1px) scale(0.99);
+  }
+}
+
+@keyframes certus-loading-bar {
+  0% {
+    transform: translateX(-105%);
+  }
+
+  100% {
+    transform: translateX(235%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-title,
+  .loading-bar span {
+    animation: none;
+  }
 }
 
 .app-loading-error {
