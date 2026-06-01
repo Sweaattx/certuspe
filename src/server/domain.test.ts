@@ -33,6 +33,7 @@ function dbFixture(): CertusDb {
     voterReceipts: [],
     emailReceipts: [],
     qrHandoffs: [],
+    voterCodeRequests: [],
     incidences: [],
     auditLogs: []
   };

@@ -8,7 +8,7 @@ import { randomBytes, randomInt, randomUUID } from "node:crypto";
 import { z } from "zod";
 import type { EmailReceipt, Role, User, VoteRecord, VoteType } from "../shared/types";
 import { createPasswordRecord, createSession, decryptPayload, destroySession, getSession, sha256, verifyPassword } from "./security";
-import { createAuditLog, ensureDb, publicUser, readDb, updateDb, type StoredUser } from "./store";
+import { createAuditLog, ensureDb, publicUser, readDb, updateDb, type StoredUser, type VoterCodeRequest } from "./store";
 import { deliverEmailReceipt, deliverPlainEmail } from "./email";
 import {
   DomainError,
@@ -123,18 +123,8 @@ const patchUserSchema = z.object({
   status: z.enum(["active", "inactive"]).optional()
 });
 
-interface PendingVoterCode {
-  name: string;
-  dni: string;
-  email: string;
-  codeHash: string;
-  expiresAt: number;
-  attempts: number;
-}
-
 const voterCodeTtlMs = 1000 * 60 * 10;
 const handoffTtlMs = 1000 * 60 * 15;
-const pendingVoterCodes = new Map<string, PendingVoterCode>();
 
 function asyncRoute(handler: (req: Request, res: Response) => Promise<void>) {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -160,6 +150,10 @@ function voterCodeKey(dni: string, email: string): string {
 
 function voterCodeHash(dni: string, email: string, code: string): string {
   return sha256(`${dni}:${normalizeEmail(email)}:${code}`);
+}
+
+function pruneVoterCodes(db: Awaited<ReturnType<typeof readDb>>, timestamp: number) {
+  db.voterCodeRequests = db.voterCodeRequests.filter((request) => request.expiresAt > timestamp);
 }
 
 function createVoterCodeEmail(name: string, code: string) {
@@ -247,11 +241,8 @@ async function finalizeVirtualVote(record: VoteRecord, actor: User, emailId: str
     console.error("No se pudo enviar el comprobante de voto:", error);
   }
 
-  try {
-    await syncVoteSafely(record, actor, deliveredEmail);
-  } catch (error) {
-    console.error("No se pudo completar la sincronizacion posterior al voto:", error);
-  }
+  await syncVoteSafely(record, actor, deliveredEmail);
+  return deliveredEmail;
 }
 
 async function requireUser(req: Request, roles?: Role[]): Promise<StoredUser> {
@@ -328,13 +319,6 @@ app.post(
   asyncRoute(async (req, res) => {
     const input = voterAccessSchema.parse(req.body);
     const email = normalizeEmail(input.email);
-    const timestamp = Date.now();
-    for (const [key, pending] of pendingVoterCodes) {
-      if (pending.expiresAt <= timestamp) {
-        pendingVoterCodes.delete(key);
-      }
-    }
-
     const db = await readDb();
     const existingByEmail = db.users.find((item) => item.email.toLowerCase() === email);
     const existingByDni = db.users.find((item) => item.dni === input.dni);
@@ -349,13 +333,31 @@ app.post(
     }
 
     const code = randomInt(100000, 1000000).toString();
-    pendingVoterCodes.set(voterCodeKey(input.dni, email), {
-      name: input.name.trim(),
-      dni: input.dni,
-      email,
-      codeHash: voterCodeHash(input.dni, email, code),
-      expiresAt: timestamp + voterCodeTtlMs,
-      attempts: 0
+    const timestamp = Date.now();
+    const requestKey = voterCodeKey(input.dni, email);
+    await updateDb((draft) => {
+      const createdAt = new Date(timestamp).toISOString();
+      pruneVoterCodes(draft, timestamp);
+      const existing = draft.voterCodeRequests.find((item) => item.key === requestKey);
+      const nextRequest: VoterCodeRequest = {
+        key: requestKey,
+        name: input.name.trim(),
+        dni: input.dni,
+        email,
+        codeHash: voterCodeHash(input.dni, email, code),
+        expiresAt: timestamp + voterCodeTtlMs,
+        attempts: 0,
+        createdAt: existing?.createdAt ?? createdAt,
+        updatedAt: createdAt
+      };
+      if (existing) {
+        Object.assign(existing, nextRequest);
+      } else {
+        draft.voterCodeRequests.push(nextRequest);
+      }
+      draft.auditLogs.push(
+        createAuditLog("system", "voter_code_requested", "voter_access", input.dni, `Codigo solicitado para ${email}.`)
+      );
     });
 
     const delivery = await deliverPlainEmail({
@@ -375,12 +377,6 @@ app.post(
       throw new DomainError(`No se pudo enviar el codigo de verificacion: ${delivery.error}`, 502);
     }
 
-    await updateDb((draft) => {
-      draft.auditLogs.push(
-        createAuditLog("system", "voter_code_requested", "voter_access", input.dni, `Codigo solicitado para ${email}.`)
-      );
-    });
-
     res.json({
       ok: true,
       email,
@@ -397,20 +393,36 @@ app.post(
     const input = voterCodeSchema.parse(req.body);
     const email = normalizeEmail(input.email);
     const key = voterCodeKey(input.dni, email);
-    const pending = pendingVoterCodes.get(key);
-    if (!pending || pending.expiresAt <= Date.now()) {
-      pendingVoterCodes.delete(key);
+    const checked = await updateDb((db) => {
+      const timestamp = Date.now();
+      pruneVoterCodes(db, timestamp);
+      const pending = db.voterCodeRequests.find((item) => item.key === key);
+      if (!pending) {
+        return { status: "expired" as const, pending: null };
+      }
+      if (pending.attempts >= 5) {
+        db.voterCodeRequests = db.voterCodeRequests.filter((item) => item.key !== key);
+        return { status: "locked" as const, pending: null };
+      }
+      if (pending.codeHash !== voterCodeHash(input.dni, email, input.code)) {
+        pending.attempts += 1;
+        pending.updatedAt = new Date(timestamp).toISOString();
+        return { status: "invalid" as const, pending: null };
+      }
+      db.voterCodeRequests = db.voterCodeRequests.filter((item) => item.key !== key);
+      return { status: "verified" as const, pending };
+    });
+
+    if (checked.status === "expired") {
       throw new DomainError("El codigo expiro. Solicita uno nuevo.", 401);
     }
-    if (pending.attempts >= 5) {
-      pendingVoterCodes.delete(key);
+    if (checked.status === "locked") {
       throw new DomainError("Se supero el numero de intentos. Solicita un nuevo codigo.", 429);
     }
-    if (pending.codeHash !== voterCodeHash(input.dni, email, input.code)) {
-      pending.attempts += 1;
+    if (checked.status === "invalid" || !checked.pending) {
       throw new DomainError("El codigo ingresado no es correcto.", 401);
     }
-    pendingVoterCodes.delete(key);
+    const pending = checked.pending;
 
     let supabaseUserId: string | null = null;
     try {
@@ -637,7 +649,8 @@ app.post(
       const email = queueVoteConfirmationEmail(db, publicActor, record);
       return { record, receipt, email };
     });
-    const email = publicEmailReceipt(result.email);
+    const deliveredEmail = await finalizeVirtualVote(result.record, publicUser(actor), result.email.id);
+    const email = publicEmailReceipt(deliveredEmail ?? result.email);
     res.status(201).json({
       record: result.record,
       receipt: result.receipt
@@ -651,7 +664,6 @@ app.post(
         : null,
       email
     });
-    void finalizeVirtualVote(result.record, publicUser(actor), result.email.id);
   })
 );
 

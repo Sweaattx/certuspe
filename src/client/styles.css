@@ -264,8 +264,7 @@ time,
 }
 
 .brand,
-.session-card,
-.compact-project {
+.session-card {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -276,8 +275,7 @@ time,
   grid-row: 1;
 }
 
-.brand strong,
-.compact-project strong {
+.brand strong {
   display: block;
   color: var(--primary);
   font-size: 16px;
@@ -285,8 +283,7 @@ time,
   letter-spacing: 0;
 }
 
-.brand span,
-.compact-project span {
+.brand span {
   display: block;
   color: var(--muted);
   font-size: 12px;
@@ -890,7 +887,6 @@ time,
   background: #f8f9ff;
 }
 
-.file-row,
 .button-row,
 .filters,
 .modal-actions {
@@ -898,25 +894,6 @@ time,
   align-items: center;
   flex-wrap: wrap;
   gap: 9px;
-}
-
-.file-input {
-  position: relative;
-  min-height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px dashed var(--secondary);
-  border-radius: var(--radius);
-  color: var(--primary);
-  padding: 9px 11px;
-  font-weight: 650;
-}
-
-.file-input input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
 }
 
 .scanner-preview {
@@ -2081,7 +2058,6 @@ dd {
   }
 
   .filters,
-  .file-row,
   .button-row {
     align-items: stretch;
     flex-direction: column;

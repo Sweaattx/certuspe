@@ -8,7 +8,6 @@ import {
   IdentificationCard,
   ListChecks,
   LockKey,
-  MagnifyingGlass,
   Pulse,
   SignOut,
   SlidersHorizontal,
@@ -198,7 +197,7 @@ function createBallotPreview(candidates: Candidate[], selectedIds: string[], ser
         <text x="62" y="${y + 18}" font-family="'IBM Plex Sans', Arial, sans-serif" font-size="14" font-weight="500" fill="#171b29">${name}</text>
         <text x="62" y="${y + 33}" font-family="'IBM Plex Sans', Arial, sans-serif" font-size="9.5" font-weight="500" fill="#1D3096">${party}</text>
         <rect x="412" y="${y + 8}" width="24" height="24" fill="#ffffff" stroke="#1D3096" stroke-width="2"/>
-        ${marked ? `<path d="M416 ${y + 20} L422 ${y + 29} L435 ${y + 6}" fill="none" stroke="#1D3096" stroke-width="4.2" stroke-linecap="square" stroke-linejoin="miter"/>` : ""}
+        ${marked ? `<path d="M418 ${y + 14} L430 ${y + 26} M430 ${y + 14} L418 ${y + 26}" fill="none" stroke="#1D3096" stroke-width="4.2" stroke-linecap="square" stroke-linejoin="miter"/>` : ""}
       `;
     })
     .join("");
@@ -538,7 +537,7 @@ export function App() {
             onNotice={setNotice}
           />
         ) : null}
-        {activeView === "results" ? <ResultsView results={bootstrap.results} data={bootstrap} /> : null}
+        {activeView === "results" ? <ResultsView results={bootstrap.results} /> : null}
         {activeView === "detail" ? (
           <DetailView
             auth={auth}
@@ -1252,16 +1251,6 @@ function ScanView({
     setImageData(createBallotPreview(data.candidates, selectedIds, serial));
   }, [data.candidates, selectedIds, serial]);
 
-  async function readFile(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setImageData(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-
   function toggleCandidate(candidateId: string) {
     setSelectedIds((current) =>
       current.includes(candidateId)
@@ -1389,30 +1378,6 @@ function ScanView({
               <small>{candidate.party}</small>
             </button>
           ))}
-        </div>
-
-        <div className="file-row">
-          <label className="file-input">
-            Subir imagen
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) {
-                  readFile(file);
-                }
-              }}
-            />
-          </label>
-          <button
-            className="ghost-button"
-            type="button"
-            onClick={() => setImageData(createBallotPreview(data.candidates, selectedIds, serial))}
-          >
-            <MagnifyingGlass size={17} />
-            Escanear cedula
-          </button>
         </div>
 
         {error ? <p className="field-error">{error}</p> : null}
@@ -1649,7 +1614,7 @@ function OnpeResultsPanel({ results }: { results: ResultSummary }) {
   );
 }
 
-function ResultsView({ results, data }: { results: ResultSummary; data: BootstrapData }) {
+function ResultsView({ results }: { results: ResultSummary }) {
   const maxVotes = Math.max(1, ...results.byCandidate.map((item) => item.votes));
   return (
     <section className="results-layout">
@@ -1720,7 +1685,6 @@ function ResultsView({ results, data }: { results: ResultSummary; data: Bootstra
           </table>
         </div>
       </div>
-      <ProjectCompact data={data} />
     </section>
   );
 }
@@ -2166,10 +2130,6 @@ function ProjectView({ data }: { data: BootstrapData }) {
             <dt>Curso</dt>
             <dd>{data.meta.course}</dd>
           </div>
-          <div>
-            <dt>Profesor</dt>
-            <dd>{data.meta.professor}</dd>
-          </div>
         </dl>
       </div>
       <div className="panel">
@@ -2188,7 +2148,7 @@ function ProjectView({ data }: { data: BootstrapData }) {
       </div>
       <div className="panel requirements-panel">
         <div className="section-heading">
-          <span className="eyebrow">DEF</span>
+          <span className="eyebrow">Requisitos</span>
           <h2>Cobertura funcional</h2>
         </div>
         <div className="requirements-grid">
@@ -2206,14 +2166,6 @@ function ProjectView({ data }: { data: BootstrapData }) {
         </div>
       </div>
     </section>
-  );
-}
-
-function ProjectCompact({ data }: { data: BootstrapData }) {
-  return (
-    <div className="panel compact-project">
-      <strong>{data.meta.systemName}</strong>
-    </div>
   );
 }
 

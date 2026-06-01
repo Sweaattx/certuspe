@@ -21,10 +21,8 @@ export interface ProjectMember {
 export interface ProjectMeta {
   university: string;
   course: string;
-  document: string;
   systemName: string;
   subtitle: string;
-  professor: string;
   members: ProjectMember[];
   colors: {
     primary: string;

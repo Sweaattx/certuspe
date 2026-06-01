@@ -18,10 +18,8 @@ export const CERTUS_COLORS = {
 export const PROJECT_META: ProjectMeta = {
   university: "Universidad Peruana de Ciencias Aplicadas",
   course: "SI720 Diseno y Patrones de Software",
-  document: "Documento de Especificaciones Funcionales (DEF)",
   systemName: "STELA / CERTUS",
   subtitle: "Sistema de conteo preliminar para procesos electorales",
-  professor: "Jorge Luis Delgado Vite",
   members: [
     { name: "Llanos Alvarez, Guillermo", code: "U202422204" },
     { name: "Garcia Bernal, Daniela", code: "U202212994" },

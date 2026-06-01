@@ -43,6 +43,18 @@ export interface QrHandoff {
   usedAt: string | null;
 }
 
+export interface VoterCodeRequest {
+  key: string;
+  name: string;
+  dni: string;
+  email: string;
+  codeHash: string;
+  expiresAt: number;
+  attempts: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CertusDb {
   meta: ProjectMeta;
   process: {
@@ -64,6 +76,7 @@ export interface CertusDb {
   voterReceipts: VoterReceipt[];
   emailReceipts: EmailReceipt[];
   qrHandoffs: QrHandoff[];
+  voterCodeRequests: VoterCodeRequest[];
   incidences: Incidence[];
   auditLogs: AuditLog[];
 }
@@ -146,6 +159,7 @@ function createSeedDb(): CertusDb {
     voterReceipts: [],
     emailReceipts: [],
     qrHandoffs: [],
+    voterCodeRequests: [],
     incidences: [],
     auditLogs: [
       {
@@ -195,6 +209,7 @@ function normalizeDb(db: CertusDb): CertusDb {
   db.voterReceipts ??= [];
   db.emailReceipts ??= [];
   db.qrHandoffs ??= [];
+  db.voterCodeRequests ??= [];
   return db;
 }
 

@@ -84,7 +84,7 @@ function createVirtualBallotImage(tableCode: string, candidates: CertusDb["candi
         <rect x="32" y="${y}" width="376" height="36" fill="#ffffff" stroke="#dfe5f0"/>
         <text x="48" y="${y + 22}" font-family="Arial" font-size="13" fill="#171b29">${escapeSvgText(candidate.name)}</text>
         <rect x="358" y="${y + 8}" width="20" height="20" fill="#ffffff" stroke="#1D3096" stroke-width="2"/>
-        ${marked ? `<path d="M362 ${y + 18} L367 ${y + 25} L378 ${y + 6}" fill="none" stroke="#1D3096" stroke-width="4"/>` : ""}
+        ${marked ? `<path d="M362 ${y + 12} L374 ${y + 24} M374 ${y + 12} L362 ${y + 24}" fill="none" stroke="#1D3096" stroke-width="3.4" stroke-linecap="square"/>` : ""}
       `;
     })
     .join("");

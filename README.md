@@ -1,10 +1,10 @@
 # CERTUS / STELA
 
-Sistema de conteo preliminar para procesos electorales, construido desde el Documento de Especificaciones Funcionales del curso SI720.
+Sistema de conteo preliminar para procesos electorales del curso SI720.
 
 ## Alcance implementado
 
-- Captura/carga de cedula digital y procesamiento simulado preparado para reemplazo por escaner/IA real.
+- Captura de cedula digital y procesamiento preparado para reemplazo por escaner real.
 - Escaner virtual por QR general que asigna aleatoriamente una de las mesas disponibles.
 - Votacion virtual desde celular, tablet o proyector.
 - Registro ciudadano por DNI, correo y codigo de verificacion enviado por Resend.
@@ -101,8 +101,7 @@ PUBLIC_APP_URL=https://certuspe.com
 2. Abre la vista `Escaneo`.
 3. Selecciona mesa y codigo de cedula.
 4. Usa `Valido`, `En blanco` o `Nulo` para simular la lectura de marcas.
-5. Usa `Escanear cedula` para generar la captura digital o `Subir imagen` para cargar una imagen propia.
-6. Presiona `Procesar y registrar voto`.
+5. Presiona `Procesar y registrar voto`.
 
 El sistema registra el voto en el backend, cifra el respaldo digital, genera hash de integridad, evita duplicados y actualiza resultados.
 
@@ -116,10 +115,8 @@ El sistema registra el voto en el backend, cifra el respaldo digital, genera has
 
 - Universidad Peruana de Ciencias Aplicadas
 - SI720 Diseno y Patrones de Software
-- Documento de Especificaciones Funcionales (DEF)
-- Profesor: Jorge Luis Delgado Vite
 - Integrantes:
-  - Llanos Alvarez, Guillermo Enrique - U202422204
+  - Llanos Alvarez, Guillermo - U202422204
   - Garcia Bernal, Daniela - U202212994
   - Condor Velasquez, Angela - U202217165
   - Chavez Valeriano, Milene - U20241C489
