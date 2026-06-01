@@ -153,6 +153,10 @@ function voteTypeLabel(type: VoteType): string {
   return labels[type];
 }
 
+function projectMemberName(name: string): string {
+  return name.startsWith("Llanos Alvarez, Guillermo ") ? "Llanos Alvarez, Guillermo" : name;
+}
+
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("es-PE", {
     dateStyle: "short",
@@ -2158,10 +2162,6 @@ function ProjectView({ data }: { data: BootstrapData }) {
             <dd>{data.meta.course}</dd>
           </div>
           <div>
-            <dt>Documento</dt>
-            <dd>{data.meta.document}</dd>
-          </div>
-          <div>
             <dt>Profesor</dt>
             <dd>{data.meta.professor}</dd>
           </div>
@@ -2175,7 +2175,7 @@ function ProjectView({ data }: { data: BootstrapData }) {
         <div className="member-list">
           {data.meta.members.map((member) => (
             <div key={member.code} className="member-row">
-              <strong>{member.name}</strong>
+              <strong>{projectMemberName(member.name)}</strong>
               <code>{member.code}</code>
             </div>
           ))}
@@ -2207,11 +2207,7 @@ function ProjectView({ data }: { data: BootstrapData }) {
 function ProjectCompact({ data }: { data: BootstrapData }) {
   return (
     <div className="panel compact-project">
-      <div>
-        <span className="eyebrow">{data.meta.document}</span>
-        <strong>{data.meta.systemName}</strong>
-      </div>
-      <span>{data.meta.professor}</span>
+      <strong>{data.meta.systemName}</strong>
     </div>
   );
 }

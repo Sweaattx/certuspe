@@ -23,7 +23,7 @@ export const PROJECT_META: ProjectMeta = {
   subtitle: "Sistema de conteo preliminar para procesos electorales",
   professor: "Jorge Luis Delgado Vite",
   members: [
-    { name: "Llanos Alvarez, Guillermo Enrique", code: "U202422204" },
+    { name: "Llanos Alvarez, Guillermo", code: "U202422204" },
     { name: "Garcia Bernal, Daniela", code: "U202212994" },
     { name: "Condor Velasquez, Angela", code: "U202217165" },
     { name: "Chavez Valeriano, Milene", code: "U20241C489" },
