@@ -242,7 +242,7 @@ time,
   background:
     linear-gradient(90deg, var(--primary) 0 76%, var(--secondary) 100%);
   transform-origin: left center;
-  animation: certus-loading-progress 1.05s linear infinite;
+  animation: certus-loading-progress 0.88s linear infinite;
   will-change: opacity, transform;
 }
 
