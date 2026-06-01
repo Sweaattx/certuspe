@@ -191,7 +191,7 @@ time,
   letter-spacing: 0;
   line-height: 0.92;
   text-align: center;
-  animation: certus-title-pulse 1.05s cubic-bezier(0.37, 0, 0.63, 1) infinite;
+  animation: certus-title-pulse 2.35s cubic-bezier(0.37, 0, 0.63, 1) infinite;
   will-change: opacity, transform;
 }
 
@@ -215,7 +215,7 @@ time,
   background:
     linear-gradient(90deg, var(--primary) 0 76%, var(--secondary) 100%);
   transform-origin: left center;
-  animation: certus-loading-progress 1.18s linear infinite;
+  animation: certus-loading-progress 1.85s linear infinite;
   will-change: opacity, transform;
 }
 
@@ -230,18 +230,18 @@ time,
   }
 
   28% {
-    opacity: 0.76;
-    transform: translate3d(-4px, -7px, 0) scale(1.035);
+    opacity: 0.93;
+    transform: translate3d(-1px, -3px, 0) scale(1.008);
   }
 
   52% {
-    opacity: 1;
-    transform: translate3d(3px, 3px, 0) scale(0.99);
+    opacity: 0.98;
+    transform: translate3d(1px, 1px, 0) scale(0.998);
   }
 
   76% {
-    opacity: 0.68;
-    transform: translate3d(0, -4px, 0) scale(1.02);
+    opacity: 0.9;
+    transform: translate3d(0, -2px, 0) scale(1.004);
   }
 
   100% {
