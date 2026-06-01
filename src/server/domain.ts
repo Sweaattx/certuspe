@@ -501,8 +501,12 @@ export function detailedRecords(db: CertusDb, actor: User): DetailedRecord[] {
     const zone = db.zones.find((item) => item.id === place?.zoneId);
     const district = db.districts.find((item) => item.id === zone?.districtId);
     const candidate = record.candidateId ? db.candidates.find((item) => item.id === record.candidateId) : null;
+    const voter = db.users.find((item) => item.id === record.createdBy);
     return {
       ...record,
+      voterName: voter?.name ?? "No registrado",
+      voterEmail: voter?.email ?? "No registrado",
+      voterDni: voter?.dni ?? null,
       tableCode: table?.code ?? "Sin mesa",
       placeName: place?.name ?? "Sin local",
       zoneName: zone?.name ?? "Sin zona",

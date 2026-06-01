@@ -212,6 +212,9 @@ export interface ResultSummary {
 }
 
 export interface DetailedRecord extends VoteRecord {
+  voterName: string;
+  voterEmail: string;
+  voterDni: string | null;
   tableCode: string;
   placeName: string;
   zoneName: string;

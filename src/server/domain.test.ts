@@ -9,7 +9,7 @@ import {
 } from "../shared/constants";
 import type { User } from "../shared/types";
 import type { CertusDb } from "./store";
-import { DomainError, computeResults, processBallot, processVirtualVote, queueVoteConfirmationEmail } from "./domain";
+import { DomainError, computeResults, detailedRecords, processBallot, processVirtualVote, queueVoteConfirmationEmail } from "./domain";
 
 function dbFixture(): CertusDb {
   return {
@@ -147,6 +147,7 @@ describe("CERTUS vote processing domain", () => {
 
   it("registers one virtual QR vote per citizen and blocks duplicates", () => {
     const db = dbFixture();
+    db.users.push({ ...citizenUser, passwordHash: "hash" });
     const record = processVirtualVote(
       db,
       {
@@ -167,6 +168,11 @@ describe("CERTUS vote processing domain", () => {
     expect(email.bodyText).not.toContain("cand-001");
     expect(db.voterReceipts[0].emailReceiptId).toBe(email.id);
     expect(computeResults(db).totalVotes).toBe(1);
+    expect(detailedRecords(db, memberUser)[0]).toMatchObject({
+      voterName: "Votante DNI",
+      voterEmail: "votante@certus.local",
+      voterDni: "12345678"
+    });
     expect(() =>
       processVirtualVote(
         db,

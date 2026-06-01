@@ -1821,6 +1821,9 @@ function DetailView({
             <table>
               <thead>
                 <tr>
+                  <th>Nombre y apellido</th>
+                  <th>Correo</th>
+                  <th>DNI</th>
                   <th>Cedula</th>
                   <th>Mesa</th>
                   <th>Distrito</th>
@@ -1833,6 +1836,9 @@ function DetailView({
               <tbody>
                 {filtered.map((record) => (
                   <tr key={record.id}>
+                    <td>{record.voterName}</td>
+                    <td>{record.voterEmail}</td>
+                    <td>{record.voterDni ?? "No registrado"}</td>
                     <td>{record.ballotSerial}</td>
                     <td>{record.tableCode}</td>
                     <td>{record.districtName}</td>
