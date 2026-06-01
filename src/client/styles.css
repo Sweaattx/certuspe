@@ -191,7 +191,7 @@ time,
   letter-spacing: 0;
   line-height: 0.92;
   text-align: center;
-  animation: certus-title-pulse 1.15s steps(2, end) infinite;
+  animation: certus-title-pulse 1.25s ease-in-out infinite;
   will-change: opacity, transform;
 }
 
@@ -208,7 +208,8 @@ time,
 .loading-bar::before {
   content: "";
   position: absolute;
-  inset: 2px;
+  inset: 2px auto 2px 2px;
+  width: calc(100% + 36px);
   border-radius: inherit;
   background:
     repeating-linear-gradient(
@@ -217,8 +218,8 @@ time,
       rgba(29, 48, 150, 0.04) 10px 18px
     );
   background-size: 36px 100%;
-  animation: certus-loading-track 0.7s linear infinite;
-  will-change: background-position;
+  animation: certus-loading-track 0.85s linear infinite;
+  will-change: transform;
 }
 
 .loading-bar span {
@@ -231,8 +232,8 @@ time,
   background:
     linear-gradient(90deg, var(--primary) 0 76%, var(--secondary) 100%);
   transform-origin: left center;
-  animation: certus-loading-progress 1.8s steps(18, end) infinite;
-  will-change: transform;
+  animation: certus-loading-progress 1.18s linear infinite;
+  will-change: opacity, transform;
 }
 
 .loading-status {
@@ -246,48 +247,42 @@ time,
     transform: translateY(0) scale(1);
   }
 
-  48% {
-    opacity: 1;
-    transform: translateY(-1px) scale(1.015);
-  }
-
-  50%,
-  74% {
-    opacity: 0.18;
-    transform: translateY(1px) scale(0.99);
+  50% {
+    opacity: 0.42;
+    transform: translateY(1px) scale(0.995);
   }
 }
 
 @keyframes certus-loading-progress {
   0% {
     opacity: 1;
-    transform: scaleX(0.04);
+    transform: scaleX(0.02);
   }
 
-  72% {
+  82% {
     opacity: 1;
     transform: scaleX(1);
   }
 
-  86% {
-    opacity: 0.35;
+  92% {
+    opacity: 0.62;
     transform: scaleX(1);
   }
 
-  87%,
+  93%,
   100% {
     opacity: 1;
-    transform: scaleX(0.04);
+    transform: scaleX(0.02);
   }
 }
 
 @keyframes certus-loading-track {
   0% {
-    background-position: 0 0;
+    transform: translate3d(0, 0, 0);
   }
 
   100% {
-    background-position: 36px 0;
+    transform: translate3d(-36px, 0, 0);
   }
 }
 
