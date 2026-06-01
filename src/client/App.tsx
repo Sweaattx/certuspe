@@ -210,7 +210,6 @@ function createBallotPreview(candidates: Candidate[], selectedIds: string[], ser
       <rect x="26" y="22" width="448" height="${frameHeight}" rx="4" fill="#ffffff" stroke="#d8dfec"/>
       <text x="42" y="55" font-family="'IBM Plex Sans', Arial, sans-serif" font-size="21" font-weight="700" fill="#1D3096">CERTUS</text>
       <text x="42" y="75" font-family="'IBM Plex Mono', Consolas, monospace" font-size="9.5" font-weight="600" fill="#5b6ea6">CEDULA DIGITAL ${safeSerial}</text>
-      <text x="368" y="55" font-family="'IBM Plex Mono', Consolas, monospace" font-size="8.5" font-weight="600" fill="#667086">SIMULACION 300DPI</text>
       <line x1="42" y1="88" x2="458" y2="88" stroke="#eef2f7"/>
       ${rows}
       <line x1="42" y1="${footerLineY}" x2="458" y2="${footerLineY}" stroke="#eef2f7"/>
