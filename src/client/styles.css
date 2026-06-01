@@ -1467,6 +1467,55 @@ dd {
   color: var(--muted);
 }
 
+.voter-location-card {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 14px;
+}
+
+.voter-location-card > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: end;
+  border-bottom: 1px solid var(--soft-line);
+  padding-bottom: 10px;
+}
+
+.voter-location-card > div:first-child strong {
+  color: var(--ink);
+  font-size: 15px;
+}
+
+.voter-location-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  margin: 0;
+}
+
+.voter-location-card dl > div {
+  min-width: 0;
+}
+
+.voter-location-card dt {
+  margin: 0 0 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.voter-location-card dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .vote-auth-panel,
 .virtual-ballot {
   display: grid;
@@ -1982,6 +2031,16 @@ dd {
 
   .onpe-count {
     text-align: left;
+  }
+
+  .voter-location-card > div:first-child,
+  .voter-location-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .voter-location-card > div:first-child {
+    display: grid;
+    align-items: start;
   }
 
   .preview-frame {

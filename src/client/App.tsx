@@ -225,36 +225,60 @@ export function App() {
   const [notice, setNotice] = useState<string | null>(null);
   const [handoffError, setHandoffError] = useState<string | null>(null);
 
+  const loadProtectedData = useCallback(async (nextAuth: AuthState | null) => {
+    if (!nextAuth) {
+      setRecords([]);
+      setIncidences([]);
+      setLogs([]);
+      setUsers([]);
+      return;
+    }
+
+    const role = nextAuth.user.role;
+    const tasks: Array<Promise<void>> = [];
+
+    if (["admin", "auditor", "member"].includes(role)) {
+      tasks.push(
+        Promise.all([loadRecords(nextAuth.token), loadIncidences(nextAuth.token)]).then(([recordData, incidenceData]) => {
+          setRecords(recordData.records);
+          setIncidences(incidenceData.incidences);
+        })
+      );
+    } else {
+      setRecords([]);
+      setIncidences([]);
+    }
+
+    if (["admin", "auditor"].includes(role)) {
+      tasks.push(
+        loadLogs(nextAuth.token).then((logData) => {
+          setLogs(logData.logs);
+        })
+      );
+    } else {
+      setLogs([]);
+    }
+
+    if (role === "admin") {
+      tasks.push(
+        loadUsers(nextAuth.token).then((userData) => {
+          setUsers(userData.users);
+        })
+      );
+    } else {
+      setUsers([]);
+    }
+
+    await Promise.all(tasks);
+  }, []);
+
   const refresh = useCallback(
     async (nextAuth = auth) => {
       const data = await loadBootstrap();
       setBootstrap(data);
-
-      if (nextAuth) {
-        if (["admin", "auditor", "member"].includes(nextAuth.user.role)) {
-          const [recordData, incidenceData] = await Promise.all([
-            loadRecords(nextAuth.token),
-            loadIncidences(nextAuth.token)
-          ]);
-          setRecords(recordData.records);
-          setIncidences(incidenceData.incidences);
-        }
-        if (["admin", "auditor"].includes(nextAuth.user.role)) {
-          const logData = await loadLogs(nextAuth.token);
-          setLogs(logData.logs);
-        }
-        if (nextAuth.user.role === "admin") {
-          const userData = await loadUsers(nextAuth.token);
-          setUsers(userData.users);
-        }
-      } else {
-        setRecords([]);
-        setIncidences([]);
-        setLogs([]);
-        setUsers([]);
-      }
+      await loadProtectedData(nextAuth);
     },
-    [auth]
+    [auth, loadProtectedData]
   );
 
   useEffect(() => {
@@ -277,6 +301,10 @@ export function App() {
             setActiveView("results");
             setHandoffError(null);
             window.history.replaceState(null, "", window.location.pathname);
+            setLoading(false);
+            void refresh(nextAuth).catch((error) => {
+              setNotice(error instanceof Error ? error.message : "No se pudo actualizar la informacion.");
+            });
             return;
           } catch (error) {
             localStorage.removeItem(tokenStorageKey);
@@ -292,28 +320,12 @@ export function App() {
           const nextAuth = { token: savedToken, user: me.user };
           setAuth(nextAuth);
           setActiveView(me.user.role === "auditor" ? "detail" : me.user.role === "citizen" ? "results" : "scan");
-          if (["admin", "auditor", "member"].includes(me.user.role)) {
-            const [recordData, incidenceData] = await Promise.all([
-              loadRecords(savedToken),
-              loadIncidences(savedToken)
-            ]);
+          setLoading(false);
+          void loadProtectedData(nextAuth).catch((error) => {
             if (mounted) {
-              setRecords(recordData.records);
-              setIncidences(incidenceData.incidences);
+              setNotice(error instanceof Error ? error.message : "No se pudo cargar la informacion privada.");
             }
-          }
-          if (["admin", "auditor"].includes(me.user.role)) {
-            const logData = await loadLogs(savedToken);
-            if (mounted) {
-              setLogs(logData.logs);
-            }
-          }
-          if (me.user.role === "admin") {
-            const userData = await loadUsers(savedToken);
-            if (mounted) {
-              setUsers(userData.users);
-            }
-          }
+          });
         }
       } catch (error) {
         if (mounted) {
@@ -345,15 +357,17 @@ export function App() {
     setActiveView("scan");
   }
 
-  async function applyAuth(nextAuth: AuthState) {
+  function applyAuth(nextAuth: AuthState) {
     localStorage.setItem(tokenStorageKey, nextAuth.token);
     setAuth(nextAuth);
     setActiveView(nextAuth.user.role === "auditor" ? "detail" : nextAuth.user.role === "citizen" ? "results" : "scan");
-    await refresh(nextAuth);
+    void refresh(nextAuth).catch((error) => {
+      setNotice(error instanceof Error ? error.message : "No se pudo actualizar la informacion.");
+    });
   }
 
   async function handleLogin(email: string, password: string) {
-    await applyAuth(await login(email, password));
+    applyAuth(await login(email, password));
   }
 
   async function handleVoterCodeRequest(input: VoterIdentityInput): Promise<VoterCodeResponse> {
@@ -362,7 +376,7 @@ export function App() {
 
   async function handleVoterCodeVerify(input: VoterCodeInput) {
     const nextAuth = await verifyVoterCode(input);
-    await applyAuth(nextAuth);
+    applyAuth(nextAuth);
     return nextAuth;
   }
 
@@ -370,7 +384,9 @@ export function App() {
     const nextAuth = await verifyVoterCode(input);
     localStorage.setItem(tokenStorageKey, nextAuth.token);
     setAuth(nextAuth);
-    await refresh(nextAuth);
+    void refresh(nextAuth).catch((error) => {
+      setNotice(error instanceof Error ? error.message : "No se pudo actualizar la informacion.");
+    });
     return nextAuth;
   }
 
@@ -921,6 +937,43 @@ function VoterAccessForm({
     </form>
   );
 }
+
+function VoterLocationCard({
+  user,
+  data
+}: {
+  user: User;
+  data: VirtualVoteData;
+}) {
+  const items = [
+    { label: "DNI", value: user.dni ?? "No registrado" },
+    { label: "Nombres y apellidos", value: user.name },
+    { label: "Local de votacion", value: data.place?.name ?? "No asignado" },
+    { label: "Direccion", value: data.place?.address ?? "No asignada" },
+    { label: "Distrito", value: data.district?.name ?? "No asignado" },
+    { label: "Zona", value: data.zone?.name ?? "No asignada" },
+    { label: "Mesa", value: data.table.code },
+    { label: "Electores", value: formatNumber(data.table.electors) }
+  ];
+
+  return (
+    <section className="voter-location-card" aria-label="Datos del votante">
+      <div>
+        <span className="eyebrow">Datos de votacion</span>
+        <strong>Consulta de mesa</strong>
+      </div>
+      <dl>
+        {items.map((item) => (
+          <div key={item.label}>
+            <dt>{item.label}</dt>
+            <dd>{item.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
 function VirtualVotePage({
   auth,
   tableId,
@@ -1023,15 +1076,17 @@ function VirtualVotePage({
             email: response.email ?? null
           }
       });
-      try {
-        setPostVoteResults(await loadResults());
-      } catch {
-        setPostVoteResults(null);
-      }
-      await onRefresh(auth);
+      setSubmitting(null);
+      void loadResults()
+        .then((results) => {
+          setPostVoteResults(results);
+        })
+        .catch(() => {
+          setPostVoteResults(null);
+        });
+      void onRefresh(auth).catch(() => undefined);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se pudo registrar el voto.");
-    } finally {
       setSubmitting(null);
     }
   }
@@ -1081,6 +1136,8 @@ function VirtualVotePage({
             </p>
           </div>
         </div>
+
+        {auth?.user.role === "citizen" && data ? <VoterLocationCard user={auth.user} data={data} /> : null}
 
         {!auth ? (
           <div className="vote-auth-panel">

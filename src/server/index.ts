@@ -224,6 +224,36 @@ async function syncVoteSafely(record: VoteRecord, actor: User, email?: EmailRece
   }
 }
 
+async function finalizeVirtualVote(record: VoteRecord, actor: User, emailId: string) {
+  let deliveredEmail: EmailReceipt | null = null;
+
+  try {
+    const storedEmail = (await readDb()).emailReceipts.find((item) => item.id === emailId) ?? null;
+    if (storedEmail) {
+      const delivery = await deliverEmailReceipt(storedEmail);
+      deliveredEmail = await updateDb((db) => {
+        const email = db.emailReceipts.find((item) => item.id === emailId);
+        if (!email) {
+          return null;
+        }
+        email.status = delivery.status;
+        email.provider = delivery.provider;
+        email.sentAt = delivery.sentAt;
+        email.error = delivery.error;
+        return email;
+      });
+    }
+  } catch (error) {
+    console.error("No se pudo enviar el comprobante de voto:", error);
+  }
+
+  try {
+    await syncVoteSafely(record, actor, deliveredEmail);
+  } catch (error) {
+    console.error("No se pudo completar la sincronizacion posterior al voto:", error);
+  }
+}
+
 async function requireUser(req: Request, roles?: Role[]): Promise<StoredUser> {
   const session = getSession(bearerToken(req));
   if (!session) {
@@ -607,19 +637,7 @@ app.post(
       const email = queueVoteConfirmationEmail(db, publicActor, record);
       return { record, receipt, email };
     });
-    const delivery = await deliverEmailReceipt(result.email);
-    const email = await updateDb((db) => {
-      const storedEmail = db.emailReceipts.find((item) => item.id === result.email.id);
-      if (!storedEmail) {
-        return { ...result.email, ...delivery };
-      }
-      storedEmail.status = delivery.status;
-      storedEmail.provider = delivery.provider;
-      storedEmail.sentAt = delivery.sentAt;
-      storedEmail.error = delivery.error;
-      return storedEmail;
-    });
-    await syncVoteSafely(result.record, publicUser(actor), email);
+    const email = publicEmailReceipt(result.email);
     res.status(201).json({
       record: result.record,
       receipt: result.receipt
@@ -628,11 +646,12 @@ app.post(
             recordId: result.receipt.recordId,
             tableId: result.receipt.tableId,
             createdAt: result.receipt.createdAt,
-            email: publicEmailReceipt(email)
+            email
           }
         : null,
-      email: publicEmailReceipt(email)
+      email
     });
+    void finalizeVirtualVote(result.record, publicUser(actor), result.email.id);
   })
 );
 

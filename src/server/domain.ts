@@ -336,6 +336,7 @@ export function processVirtualVote(db: CertusDb, input: ProcessVirtualVoteInput,
 
 export function queueVoteConfirmationEmail(db: CertusDb, actor: User, record: VoteRecord): EmailReceipt {
   const table = db.tables.find((item) => item.id === record.tableId);
+  const place = table ? db.places.find((item) => item.id === table.placeId) : null;
   const receipt = db.voterReceipts.find((item) => item.recordId === record.id);
   const createdAt = now();
   const verificationCode = record.integrityHash.slice(0, 16).toUpperCase();
@@ -344,7 +345,10 @@ export function queueVoteConfirmationEmail(db: CertusDb, actor: User, record: Vo
     `Hola ${actor.name},`,
     "",
     "Tu voto ha sido procesado correctamente por CERTUSPE.",
+    `DNI: ${actor.dni ?? "No registrado"}`,
     `Mesa: ${table?.code ?? record.tableId}`,
+    `Local de votacion: ${place?.name ?? "No registrado"}`,
+    `Direccion: ${place?.address ?? "No registrada"}`,
     `Fecha de registro: ${createdAt}`,
     `Codigo de verificacion: ${verificationCode}`,
     "",
@@ -367,7 +371,10 @@ export function queueVoteConfirmationEmail(db: CertusDb, actor: User, record: Vo
       kind: "vote_confirmation",
       variables: {
         VOTER_NAME: actor.name,
+        VOTER_DNI: actor.dni ?? "No registrado",
         TABLE_CODE: table?.code ?? record.tableId,
+        VOTING_PLACE: place?.name ?? "No registrado",
+        VOTING_ADDRESS: place?.address ?? "No registrada",
         REGISTERED_AT: createdAt,
         RECEIPT_CODE: verificationCode
       }

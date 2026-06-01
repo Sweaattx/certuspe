@@ -162,6 +162,8 @@ describe("CERTUS vote processing domain", () => {
     const email = queueVoteConfirmationEmail(db, citizenUser, record);
     expect(email.to).toBe(citizenUser.email);
     expect(email.bodyText).toContain("Gracias por confiar en Certuspe.");
+    expect(email.bodyText).toContain("DNI: 12345678");
+    expect(email.bodyText).toContain("Local de votacion: IE Republica del Peru");
     expect(email.bodyText).not.toContain("cand-001");
     expect(db.voterReceipts[0].emailReceiptId).toBe(email.id);
     expect(computeResults(db).totalVotes).toBe(1);
