@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import upcLogoUrl from "./assets/upc-logo.png";
 import type {
   AuditLog,
   Candidate,
@@ -80,7 +81,7 @@ function votingUrl(tableId?: string, baseUrl?: string | null): string {
 }
 
 function UpcLogo({ large = false }: { large?: boolean }) {
-  return <img className={large ? "brand-logo large" : "brand-logo"} src="/upc-logo.png" alt="Logo UPC" />;
+  return <img className={large ? "brand-logo large" : "brand-logo"} src={upcLogoUrl} alt="Logo UPC" />;
 }
 
 function randomVotingTableId(tables: BootstrapData["tables"]): string | null {
