@@ -4,6 +4,7 @@
 data/
 server*.log
 *.png
+!src/client/assets/upc-logo.png
 node_modules/
 dist/
 .vercel/
