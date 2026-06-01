@@ -60,6 +60,7 @@ import {
 
 type ViewId = "scan" | "results" | "detail" | "reports" | "users" | "history" | "project";
 type ScanStageId = "capture" | "processing" | "hash" | "confirmation";
+type CrossValidationStatus = NonNullable<VoteRecord["crossValidation"]>["status"];
 type VoterIdentityInput = { name: string; dni: string; email: string };
 type VoterCodeInput = { dni: string; email: string; code: string };
 
@@ -208,6 +209,26 @@ function voteTypeLabel(type: VoteType): string {
     blank: "En blanco"
   };
   return labels[type];
+}
+
+function crossValidationLabel(status?: CrossValidationStatus): string {
+  if (status === "consistent") {
+    return "Validado";
+  }
+  if (status === "inconsistent") {
+    return "Inconsistente";
+  }
+  return "Pendiente";
+}
+
+function crossValidationBadgeClass(status?: CrossValidationStatus): string {
+  if (status === "consistent") {
+    return "badge success";
+  }
+  if (status === "inconsistent") {
+    return "badge danger";
+  }
+  return "badge";
 }
 
 function projectMemberName(name: string): string {
@@ -1896,8 +1917,8 @@ function DetailView({
                     <td>{voteTypeLabel(record.voteType)}</td>
                     <td>{record.candidateName ?? "No aplica"}</td>
                     <td>
-                      <span className={record.crossValidation?.status === "inconsistent" ? "badge danger" : "badge"}>
-                        {record.crossValidation?.status ?? "Pendiente"}
+                      <span className={crossValidationBadgeClass(record.crossValidation?.status)}>
+                        {crossValidationLabel(record.crossValidation?.status)}
                       </span>
                     </td>
                     <td>

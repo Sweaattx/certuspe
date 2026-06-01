@@ -1201,6 +1201,12 @@ dd {
   color: var(--danger);
 }
 
+.badge.success {
+  border-color: rgba(8, 116, 67, 0.18);
+  background: rgba(8, 116, 67, 0.08);
+  color: var(--success);
+}
+
 .reports-layout {
   grid-template-columns: 0.8fr 1.2fr;
 }
