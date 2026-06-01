@@ -491,7 +491,13 @@ export function App() {
       <div className="app-loading" aria-live="polite" aria-label="Cargando CERTUS">
         <div className="loading-sequence">
           <span className="loading-kicker">Cargando sistema</span>
-          <span className="loading-title">CERTUS</span>
+          <span className="loading-title" aria-label="CERTUS">
+            {"CERTUS".split("").map((letter, index) => (
+              <span key={`${letter}-${index}`} aria-hidden="true">
+                {letter}
+              </span>
+            ))}
+          </span>
           <div className="loading-bar" aria-hidden="true">
             <span />
           </div>
