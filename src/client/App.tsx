@@ -43,7 +43,6 @@ import {
   loadMe,
   loadRecords,
   loadReport,
-  loadResults,
   loadVirtualVote,
   loadVirtualVoteStatus,
   loadUsers,
@@ -73,6 +72,10 @@ function currentVoteRoute(): string | null {
   }
   const match = window.location.pathname.match(/^\/votar\/([^/]+)$/);
   return match ? decodeURIComponent(match[1]) : null;
+}
+
+function currentResultsRoute(): boolean {
+  return window.location.pathname === "/resultados";
 }
 
 function votingUrl(tableId?: string, baseUrl?: string | null): string {
@@ -411,6 +414,10 @@ export function App() {
   }
 
   const voteRouteTableId = currentVoteRoute();
+  if (currentResultsRoute()) {
+    return <PublicResultsPage data={bootstrap} />;
+  }
+
   if (voteRouteTableId) {
     if (voteRouteTableId === randomVoteRoute) {
       return (
@@ -645,6 +652,30 @@ function CitizenQrOnlyPage({
             Salir
           </button>
         </div>
+      </section>
+    </main>
+  );
+}
+
+function PublicResultsPage({ data }: { data: BootstrapData }) {
+  return (
+    <main className="vote-page results-public-page">
+      <section className="vote-shell results-public-shell">
+        <div className="vote-header">
+          <div className="brand auth-brand">
+            <UpcLogo />
+            <div>
+              <strong>CERTUS</strong>
+              <span>Resultados</span>
+            </div>
+          </div>
+          <div>
+            <span className="eyebrow">{data.process.name}</span>
+            <h1>Resultados electorales</h1>
+            <p>Conteo preliminar publicado para consulta ciudadana.</p>
+          </div>
+        </div>
+        <OnpeResultsPanel results={data.results} />
       </section>
     </main>
   );
@@ -996,9 +1027,6 @@ function VirtualVotePage({
   const [submitting, setSubmitting] = useState<"vote" | null>(null);
   const [submittedRecord, setSubmittedRecord] = useState<VoteRecord | null>(null);
   const [confirmationEmail, setConfirmationEmail] = useState<VoteEmailSummary | null>(null);
-  const [showResults, setShowResults] = useState(false);
-  const [postVoteResults, setPostVoteResults] = useState<ResultSummary | null>(null);
-  const [resultsLoading, setResultsLoading] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -1077,13 +1105,6 @@ function VirtualVotePage({
           }
       });
       setSubmitting(null);
-      void loadResults()
-        .then((results) => {
-          setPostVoteResults(results);
-        })
-        .catch(() => {
-          setPostVoteResults(null);
-        });
       void onRefresh(auth).catch(() => undefined);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "No se pudo registrar el voto.");
@@ -1091,22 +1112,9 @@ function VirtualVotePage({
     }
   }
 
-  async function showPostVoteResults() {
-    setResultsLoading(true);
-    setError(null);
-    try {
-      const results = postVoteResults ?? (await loadResults());
-      setPostVoteResults(results);
-      setShowResults(true);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "No se pudieron cargar los resultados.");
-    } finally {
-      setResultsLoading(false);
-    }
-  }
-
   const voteType = selectedIds.length === 0 ? "blank" : selectedIds.length > 1 ? "null" : "valid";
   const canVote = auth?.user.role === "citizen" && !status?.hasVoted && data?.process.status === "En progreso";
+  const hasProcessedVote = Boolean(status?.hasVoted || submittedRecord);
   const emailReceipt = confirmationEmail ?? status?.receipt?.email ?? null;
   const emailTarget = emailReceipt?.to ?? auth?.user.email;
   const emailStatusText =
@@ -1119,25 +1127,27 @@ function VirtualVotePage({
   return (
     <main className="vote-page">
       <section className="vote-shell">
-        <div className="vote-header">
-          <div className="brand auth-brand">
-            <UpcLogo />
+        {!hasProcessedVote ? (
+          <div className="vote-header">
+            <div className="brand auth-brand">
+              <UpcLogo />
+              <div>
+                <strong>CERTUS</strong>
+                <span>Cedula virtual</span>
+              </div>
+            </div>
             <div>
-              <strong>CERTUS</strong>
-              <span>Cedula virtual</span>
+              <span className="eyebrow">{data?.process.name ?? "Proceso electoral"}</span>
+              <h1>Votacion virtual</h1>
+              <p>
+                Mesa {data?.table.code ?? tableId}
+                {data?.place ? ` - ${data.place.name}` : ""}
+              </p>
             </div>
           </div>
-          <div>
-            <span className="eyebrow">{data?.process.name ?? "Proceso electoral"}</span>
-            <h1>Votacion virtual</h1>
-            <p>
-              Mesa {data?.table.code ?? tableId}
-              {data?.place ? ` - ${data.place.name}` : ""}
-            </p>
-          </div>
-        </div>
+        ) : null}
 
-        {auth?.user.role === "citizen" && data ? <VoterLocationCard user={auth.user} data={data} /> : null}
+        {auth?.user.role === "citizen" && data && !hasProcessedVote ? <VoterLocationCard user={auth.user} data={data} /> : null}
 
         {!auth ? (
           <div className="vote-auth-panel">
@@ -1153,7 +1163,7 @@ function VirtualVotePage({
             <h2>Usa una cuenta ciudadana</h2>
             <p>Cierra sesion e ingresa con DNI y correo como votante para abrir esta cedula.</p>
           </div>
-        ) : status?.hasVoted || submittedRecord ? (
+        ) : hasProcessedVote ? (
           <div className="vote-auth-panel success">
             <CheckCircle size={24} weight="fill" />
             <h2>Listo, tu voto ha sido procesado</h2>
@@ -1167,10 +1177,9 @@ function VirtualVotePage({
               </div>
             </div>
             <code>{submittedRecord?.integrityHash.slice(0, 24) ?? status?.receipt?.recordId}</code>
-            <button className="primary-button wide" type="button" onClick={showPostVoteResults} disabled={resultsLoading}>
-              {resultsLoading ? "Cargando resultados" : "Mostrar resultados"}
-            </button>
-            {showResults && postVoteResults ? <OnpeResultsPanel results={postVoteResults} /> : null}
+            <a className="primary-button wide" href="/resultados" target="_blank" rel="noreferrer">
+              Mostrar resultados
+            </a>
             {error ? <p className="field-error">{error}</p> : null}
           </div>
         ) : (
