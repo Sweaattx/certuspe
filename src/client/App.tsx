@@ -215,10 +215,10 @@ const navItems: Array<{
 ];
 
 const landingMetrics = [
-  { value: "2s", label: "meta de proceso", detail: "La captura, el registro y el hash quedan en una sola ruta." },
-  { value: "4", label: "mesas activas", detail: "M-014, M-018, M-021 y M-037 sostienen la demo." },
-  { value: "5", label: "vistas clave", detail: "Conteo, detalle, reportes, usuarios e historial." },
-  { value: "1", label: "registro verificable", detail: "Cada voto deja evidencia, mesa y validacion enlazadas." }
+  { value: "2s", label: "procesamiento", detail: "Captura y validacion en una ventana operativa corta." },
+  { value: "4", label: "mesas", detail: "Asignacion distribuida para la simulacion electoral." },
+  { value: "5", label: "modulos", detail: "Conteo, auditoria, reportes, usuarios e historial." },
+  { value: "1", label: "trazabilidad", detail: "Cada registro conserva mesa, cedula y hash asociado." }
 ];
 
 const landingContext = [
@@ -286,36 +286,31 @@ const landingScreens = [
     id: "results",
     title: "Resultados generales",
     text: "Conteo, participacion y mesa en una sola vista.",
-    image: landingResultsUrl,
-    coverage: ["Conteo", "Grafico", "Mesa"]
+    image: landingResultsUrl
   },
   {
     id: "audit",
     title: "Auditoria detallada",
     text: "DNI, mesa, distrito, voto y validacion en una grilla limpia.",
-    image: landingAuditUrl,
-    coverage: ["Validacion", "DNI", "Detalle"]
+    image: landingAuditUrl
   },
   {
     id: "reports",
     title: "Reportes automaticos",
     text: "Resumen de integridad, incidencias y exportacion lista.",
-    image: landingReportsUrl,
-    coverage: ["Reporte", "Riesgos", "JSON"]
+    image: landingReportsUrl
   },
   {
     id: "users",
     title: "Gestion de usuarios",
     text: "Roles operativos y acceso por perfil.",
-    image: landingUsersUrl,
-    coverage: ["Roles", "Accesos", "Estado"]
+    image: landingUsersUrl
   },
   {
     id: "history",
     title: "Historial de acciones",
     text: "Bitacora de accesos, validaciones y eventos clave.",
-    image: landingHistoryUrl,
-    coverage: ["Logs", "Eventos", "Auditoria"]
+    image: landingHistoryUrl
   }
 ] as const;
 
@@ -360,6 +355,22 @@ function crossValidationBadgeClass(status?: CrossValidationStatus): string {
 
 function projectMemberName(name: string): string {
   return name.startsWith("Llanos Alvarez, Guillermo ") ? "Llanos Alvarez, Guillermo" : name;
+}
+
+function landingMemberName(name: string): string {
+  const cleanName = projectMemberName(name);
+  const [lastName, firstName] = cleanName.split(",").map((part) => part.trim());
+  return firstName ? `${firstName} ${lastName}` : cleanName;
+}
+
+function landingMemberInitials(name: string): string {
+  return landingMemberName(name)
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
 }
 
 function formatDate(value: string): string {
@@ -802,10 +813,12 @@ function viewTitle(view: ViewId): string {
 }
 
 function revealStyle(index: number): CSSProperties {
-  return { "--delay": `${index * 80}ms` } as CSSProperties;
+  return { "--delay": `${Math.min(index * 70, 420)}ms` } as CSSProperties;
 }
 
 function LandingPage() {
+  const [featuredScreen, ...secondaryScreens] = landingScreens;
+
   useEffect(() => {
     const elements = Array.from(document.querySelectorAll<HTMLElement>(".landing-reveal"));
     if (!("IntersectionObserver" in window)) {
@@ -851,22 +864,17 @@ function LandingPage() {
 
       <section className="landing-hero">
         <div className="landing-hero-copy landing-reveal" style={revealStyle(0)}>
-          <span className="eyebrow">CERTUSPE</span>
-          <h1>Resultados preliminares con respaldo verificable.</h1>
+          <span className="landing-hero-kicker">CERTUSPE</span>
+          <h1>Conteo preliminar con evidencia verificable.</h1>
           <p>
-            Conteo preliminar, trazabilidad por mesa y consulta publica en una experiencia clara para operacion y
-            revision.
+            CERTUSPE digitaliza cedulas, valida marcas y publica resultados por mesa con una lectura clara para
+            operacion, auditoria y ciudadania.
           </p>
-          <div className="landing-project-strip" aria-label="Datos del proyecto">
-            <span>Escaneo de cedulas</span>
-            <span>Auditoria por mesa</span>
-            <span>Resultados publicos</span>
-          </div>
           <div className="landing-hero-flow" aria-label="Flujo resumido CERTUS">
             <span>Captura</span>
-            <span>Procesamiento</span>
+            <span>Validacion</span>
             <span>Hash</span>
-            <span>Confirmacion</span>
+            <span>Resultado</span>
           </div>
           <div className="landing-actions">
             <a className="primary-button" href="/app">
@@ -903,9 +911,9 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-metrics" aria-label="Indicadores del sistema">
+      <section className="landing-metrics landing-reveal" style={revealStyle(2)} aria-label="Indicadores del sistema">
         {landingMetrics.map((metric, index) => (
-          <div className="landing-metric" key={metric.label}>
+          <div className="landing-metric" style={revealStyle(index)} key={metric.label}>
             <strong>{metric.value}</strong>
             <span>{metric.label}</span>
             <small>{metric.detail}</small>
@@ -913,38 +921,41 @@ function LandingPage() {
         ))}
       </section>
 
-      <section className="landing-section landing-system-section" id="plataforma">
+      <section className="landing-section landing-system-section landing-reveal" style={revealStyle(0)} id="plataforma">
         <div className="landing-section-head split">
           <div>
             <span className="eyebrow">Vistas</span>
-            <h2>Pantallas del sistema en escritorio y movil.</h2>
+            <h2>Vistas del producto.</h2>
           </div>
-          <p>Una vista compacta del conteo, la auditoria y la gestion del proceso.</p>
+          <p>Conteo, auditoria, reportes y gestion reunidos en una sola interfaz.</p>
         </div>
-        <div className="landing-gallery-grid">
-          {landingScreens.map((screen, index) => {
-            return (
-              <article className="landing-gallery-card" key={screen.id}>
-                <figure>
-                  <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
-                </figure>
-                <div className="landing-gallery-copy">
-                  <span>{String(index + 1).padStart(2, "0")}</span>
+        <div className="landing-gallery-layout">
+          <article className="landing-screen-primary landing-reveal" style={revealStyle(1)}>
+            <figure>
+              <img src={featuredScreen.image} alt={`Vista de ${featuredScreen.title} en CERTUS`} loading="lazy" />
+            </figure>
+            <div className="landing-gallery-copy">
+              <span>Principal</span>
+              <h3>{featuredScreen.title}</h3>
+              <p>{featuredScreen.text}</p>
+            </div>
+          </article>
+          <div className="landing-screen-list" aria-label="Vistas secundarias">
+            {secondaryScreens.map((screen, index) => (
+              <article className="landing-screen-item landing-reveal" style={revealStyle(index + 2)} key={screen.id}>
+                <span>{String(index + 2).padStart(2, "0")}</span>
+                <div>
                   <h3>{screen.title}</h3>
                   <p>{screen.text}</p>
-                  <div className="landing-proof-tags">
-                    {screen.coverage.map((item) => (
-                      <code key={item}>{item}</code>
-                    ))}
-                  </div>
                 </div>
+                <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
               </article>
-            );
-          })}
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="landing-section landing-context-section" id="beneficios">
+      <section className="landing-section landing-context-section landing-reveal" style={revealStyle(0)} id="beneficios">
         <div className="landing-section-head split">
           <div>
             <span className="eyebrow">Beneficios</span>
@@ -956,7 +967,7 @@ function LandingPage() {
         </div>
         <div className="landing-context-grid">
           {landingContext.map((item, index) => (
-            <article className="landing-context-panel" key={item.label}>
+            <article className="landing-context-panel landing-reveal" style={revealStyle(index + 1)} key={item.label}>
               <span>{item.label}</span>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
@@ -965,7 +976,7 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section" id="proceso">
+      <section className="landing-section landing-reveal" style={revealStyle(0)} id="proceso">
         <div className="landing-section-head split">
           <div>
             <span className="eyebrow">Proceso</span>
@@ -979,7 +990,7 @@ function LandingPage() {
           {landingProcess.map((step, index) => {
             const Icon = step.icon;
             return (
-              <article className="landing-process-row" key={step.title}>
+              <article className="landing-process-row landing-reveal" style={revealStyle(index + 1)} key={step.title}>
                 <div className="landing-process-index">
                   <span>{step.label}</span>
                   <Icon size={24} weight="duotone" />
@@ -1002,31 +1013,25 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section landing-team-section" id="equipo">
-        <div className="landing-section-head split">
-          <div>
+      <section className="landing-section landing-team-section landing-reveal" style={revealStyle(0)} id="equipo">
+        <div className="landing-team-panel">
+          <div className="landing-team-copy">
             <span className="eyebrow">Equipo</span>
-            <h2>{PROJECT_META.systemName}</h2>
+            <h2>CERTUSPE</h2>
+            <p>Equipo responsable del producto, la validacion operativa y la experiencia ciudadana.</p>
           </div>
-          <p>Equipo y miembros del proyecto.</p>
-        </div>
-        <div className="landing-project-card">
-          <div className="landing-team-brand">
-            <span>Empresa</span>
-            <strong>{PROJECT_META.systemName}</strong>
-          </div>
-          <div className="landing-team-list">
+          <div className="landing-member-grid" aria-label="Miembros del proyecto">
             {PROJECT_META.members.map((member, index) => (
-              <div className="landing-team-row" key={member.code}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{projectMemberName(member.name)}</strong>
+              <div className="landing-member-card landing-reveal" style={revealStyle(index + 1)} key={member.code}>
+                <span className="landing-member-mark">{landingMemberInitials(member.name)}</span>
+                <strong>{landingMemberName(member.name)}</strong>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="landing-final">
+      <section className="landing-final landing-reveal" style={revealStyle(0)}>
         <div>
           <span className="eyebrow">CERTUSPE</span>
           <h2>Una experiencia lista para usuarios finales.</h2>
@@ -1037,6 +1042,43 @@ function LandingPage() {
           <ArrowRight size={18} />
         </a>
       </section>
+
+      <footer className="landing-footer">
+        <div className="landing-footer-main">
+          <div className="landing-footer-brand">
+            <a className="landing-brand" href="/" aria-label="Inicio CERTUS">
+              <UpcLogo />
+              <span>
+                <strong>CERTUS</strong>
+                <small>Conteo preliminar</small>
+              </span>
+            </a>
+            <p>
+              Plataforma para captura, validacion y publicacion de resultados preliminares con evidencia trazable.
+            </p>
+          </div>
+          <nav className="landing-footer-column" aria-label="Producto">
+            <span>Producto</span>
+            <a href="#plataforma">Vistas del producto</a>
+            <a href="#beneficios">Beneficios</a>
+            <a href="#proceso">Proceso</a>
+          </nav>
+          <nav className="landing-footer-column" aria-label="Sistema">
+            <span>Sistema</span>
+            <a href="/app">Acceso operativo</a>
+            <a href="/resultados">Resultados publicos</a>
+            <a href="#equipo">Equipo</a>
+          </nav>
+          <div className="landing-footer-column">
+            <span>Proyecto</span>
+            <p>CERTUS</p>
+          </div>
+        </div>
+        <div className="landing-footer-bottom">
+          <span>Certuspe</span>
+          <span>Sistema de conteo preliminar para procesos electorales.</span>
+        </div>
+      </footer>
     </main>
   );
 }
