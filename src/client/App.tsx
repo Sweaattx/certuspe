@@ -1,5 +1,6 @@
 import {
   Archive,
+  ArrowRight,
   ChartBar,
   CheckCircle,
   ClockCounterClockwise,
@@ -15,8 +16,9 @@ import {
   WarningCircle
 } from "@phosphor-icons/react";
 import QRCode from "qrcode";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 import upcLogoUrl from "./assets/upc-logo.png";
+import { PROJECT_META, SEED_CANDIDATES } from "../shared/constants";
 import type {
   AuditLog,
   Candidate,
@@ -140,6 +142,10 @@ function currentResultsRoute(): boolean {
   return window.location.pathname === "/resultados";
 }
 
+function currentLandingRoute(): boolean {
+  return ["/", "/landing", "/inicio"].includes(window.location.pathname);
+}
+
 function clearVoterRegistrationModeFromUrl() {
   if (currentVoteRouteRequiresVoterAccess()) {
     window.history.replaceState(null, "", window.location.pathname);
@@ -201,6 +207,75 @@ const navItems: Array<{
   { id: "users", label: "Usuarios", roles: ["admin"], icon: UserGear },
   { id: "history", label: "Historial", roles: ["admin", "auditor"], icon: ClockCounterClockwise },
   { id: "project", label: "Proyecto", roles: "all", icon: Archive }
+];
+
+const landingProcess = [
+  {
+    label: "01",
+    title: "Captura fisica",
+    text: "El terminal escanea la cedula, registra mesa, operador, codigo y evidencia digital antes del deposito fisico.",
+    icon: IdentificationCard
+  },
+  {
+    label: "02",
+    title: "Procesamiento IA",
+    text: "El sistema interpreta marcas, detecta el candidato seleccionado y clasifica el voto como valido, blanco o nulo.",
+    icon: Pulse
+  },
+  {
+    label: "03",
+    title: "Hash y respaldo",
+    text: "Cada registro genera una huella de integridad y conserva imagen digital para auditoria posterior.",
+    icon: LockKey
+  },
+  {
+    label: "04",
+    title: "Resultados",
+    text: "Los datos confirmados alimentan resultados preliminares, reportes automaticos e incidencias operativas.",
+    icon: ChartBar
+  }
+];
+
+const landingScreens = [
+  {
+    id: "results",
+    title: "Resultados generales",
+    text: "Conteo preliminar por candidato, participacion y detalle por mesa.",
+    icon: ChartBar
+  },
+  {
+    id: "audit",
+    title: "Auditoria detallada",
+    text: "Registros con DNI, mesa, distrito, tipo de voto, candidato y estado de validacion.",
+    icon: SlidersHorizontal
+  },
+  {
+    id: "reports",
+    title: "Reportes automaticos",
+    text: "Resumen de integridad, incidencias y datos listos para revision.",
+    icon: FileText
+  },
+  {
+    id: "users",
+    title: "Gestion de usuarios",
+    text: "Roles operativos para administradores, auditores, miembros de mesa y ciudadania.",
+    icon: UserGear
+  },
+  {
+    id: "history",
+    title: "Historial de acciones",
+    text: "Bitacora de accesos, escaneos, validaciones y actividad del sistema.",
+    icon: ClockCounterClockwise
+  }
+] as const;
+
+const landingCapabilities = [
+  "Conteo preliminar automatizado",
+  "Validacion cruzada con actas fisicas",
+  "Control de duplicidad por cedula",
+  "Transmision segura de datos",
+  "Reportes para auditoria",
+  "Consulta publica de resultados"
 ];
 
 function roleLabel(role: Role): string {
@@ -308,6 +383,7 @@ function createBallotPreview(candidates: Candidate[], selectedIds: string[], ser
 }
 
 export function App() {
+  const isLandingRoute = currentLandingRoute();
   const [bootstrap, setBootstrap] = useState<BootstrapData | null>(null);
   const [auth, setAuth] = useState<AuthState | null>(null);
   const [activeView, setActiveView] = useState<ViewId>("scan");
@@ -379,6 +455,10 @@ export function App() {
   useEffect(() => {
     let mounted = true;
     async function boot() {
+      if (isLandingRoute) {
+        setLoading(false);
+        return;
+      }
       try {
         const data = await loadBootstrap();
         if (!mounted) {
@@ -437,7 +517,7 @@ export function App() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isLandingRoute]);
 
   const role = auth?.user.role ?? "citizen";
   const availableNav = navItems.filter((item) => item.roles === "all" || item.roles.includes(role));
@@ -484,6 +564,10 @@ export function App() {
       setNotice(error instanceof Error ? error.message : "No se pudo actualizar la informacion.");
     });
     return nextAuth;
+  }
+
+  if (isLandingRoute) {
+    return <LandingPage />;
   }
 
   if (loading) {
@@ -674,6 +758,331 @@ function viewTitle(view: ViewId): string {
     project: "Ficha del proyecto"
   };
   return titles[view];
+}
+
+function revealStyle(index: number): CSSProperties {
+  return { "--delay": `${index * 80}ms` } as CSSProperties;
+}
+
+function LandingPage() {
+  const heroBallot = createBallotPreview(SEED_CANDIDATES, [SEED_CANDIDATES[0].id], "CED-480117");
+  return (
+    <main className="landing-page">
+      <header className="landing-nav">
+        <a className="landing-brand" href="/" aria-label="Inicio CERTUS">
+          <UpcLogo />
+          <span>
+            <strong>CERTUS</strong>
+            <small>Conteo preliminar</small>
+          </span>
+        </a>
+        <nav aria-label="Navegacion publica">
+          <a href="#proceso">Proceso</a>
+          <a href="#sistema">Sistema</a>
+          <a href="#equipo">Equipo</a>
+        </nav>
+        <a className="landing-login" href="/app">
+          Ingresar
+          <ArrowRight size={17} />
+        </a>
+      </header>
+
+      <section className="landing-hero">
+        <div className="landing-hero-copy landing-reveal" style={revealStyle(0)}>
+          <span className="eyebrow">Proceso electoral CERTUS 2026</span>
+          <h1>Conteo preliminar claro, auditable y rapido.</h1>
+          <p>
+            CERTUS registra cedulas, procesa marcas con apoyo de inteligencia artificial y publica resultados
+            preliminares con trazabilidad para auditoria.
+          </p>
+          <div className="landing-actions">
+            <a className="primary-button" href="/app">
+              Acceder al sistema
+              <ArrowRight size={18} />
+            </a>
+            <a className="ghost-button" href="/resultados">
+              Ver resultados
+            </a>
+          </div>
+        </div>
+
+        <div className="landing-hero-visual landing-reveal" style={revealStyle(1)} aria-label="Vista de cedula digital">
+          <div className="landing-scan-frame">
+            <span />
+            <span />
+            <span />
+            <span />
+            <img src={heroBallot} alt="Cedula digital CERTUS con marca de voto" />
+          </div>
+          <div className="landing-hero-note">
+            <strong>Terminal CERTUS</strong>
+            <small>Captura, IA, hash y confirmacion en un flujo unico.</small>
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-metrics" aria-label="Indicadores del sistema">
+        {[
+          ["20", "requisitos funcionales"],
+          ["5", "requisitos no funcionales"],
+          ["4", "mesas configuradas"],
+          ["5", "candidatos de muestra"]
+        ].map(([value, label], index) => (
+          <div className="landing-metric landing-reveal" style={revealStyle(index + 2)} key={label}>
+            <strong>{value}</strong>
+            <span>{label}</span>
+          </div>
+        ))}
+      </section>
+
+      <section className="landing-section" id="proceso">
+        <div className="landing-section-head">
+          <span className="eyebrow">Flujo original</span>
+          <h2>Del escaneo fisico a resultados verificables</h2>
+          <p>
+            El QR funciona como demostracion cuando no hay escaner real. El proceso objetivo de CERTUS mantiene
+            captura fisica, respaldo digital, validacion y publicacion preliminar.
+          </p>
+        </div>
+        <div className="landing-process-grid">
+          {landingProcess.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <article className="landing-process-card landing-reveal" style={revealStyle(index)} key={step.title}>
+                <div>
+                  <span>{step.label}</span>
+                  <Icon size={24} weight="duotone" />
+                </div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="landing-section landing-system-section" id="sistema">
+        <div className="landing-section-head">
+          <span className="eyebrow">Vistas del producto</span>
+          <h2>Una plataforma para conteo, control y auditoria</h2>
+          <p>
+            Estas pantallas resumen el recorrido visual del sistema: resultados, registros, reportes, usuarios e
+            historial operativo.
+          </p>
+        </div>
+        <div className="landing-screen-grid">
+          {landingScreens.map((screen, index) => {
+            const Icon = screen.icon;
+            return (
+              <article className="landing-screen-card landing-reveal" style={revealStyle(index)} key={screen.id}>
+                <div className="landing-screen-copy">
+                  <Icon size={22} weight="duotone" />
+                  <div>
+                    <h3>{screen.title}</h3>
+                    <p>{screen.text}</p>
+                  </div>
+                </div>
+                <LandingScreenPreview id={screen.id} />
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="landing-section landing-capability-section">
+        <div className="landing-section-head">
+          <span className="eyebrow">Cobertura funcional</span>
+          <h2>Disenado desde los requisitos del proyecto</h2>
+        </div>
+        <div className="landing-capability-grid">
+          {landingCapabilities.map((item, index) => (
+            <div className="landing-capability landing-reveal" style={revealStyle(index)} key={item}>
+              <CheckCircle size={18} weight="fill" />
+              <span>{item}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section landing-team-section" id="equipo">
+        <div className="landing-section-head">
+          <span className="eyebrow">{PROJECT_META.course}</span>
+          <h2>{PROJECT_META.systemName}</h2>
+          <p>{PROJECT_META.subtitle}</p>
+        </div>
+        <div className="landing-team-grid">
+          {PROJECT_META.members.map((member, index) => (
+            <div className="landing-team-member landing-reveal" style={revealStyle(index)} key={member.code}>
+              <strong>{projectMemberName(member.name)}</strong>
+              <span>{member.code}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-final">
+        <div>
+          <span className="eyebrow">CERTUSPE</span>
+          <h2>Listo para demostrar el proceso completo.</h2>
+        </div>
+        <a className="primary-button" href="/app">
+          Abrir sistema
+          <ArrowRight size={18} />
+        </a>
+      </section>
+    </main>
+  );
+}
+
+function LandingScreenPreview({ id }: { id: (typeof landingScreens)[number]["id"] }) {
+  if (id === "results") {
+    return <LandingResultsPreview />;
+  }
+  if (id === "audit") {
+    return <LandingAuditPreview />;
+  }
+  if (id === "reports") {
+    return <LandingReportPreview />;
+  }
+  if (id === "users") {
+    return <LandingUsersPreview />;
+  }
+  return <LandingHistoryPreview />;
+}
+
+function LandingResultsPreview() {
+  const votes = [3, 2, 1, 1, 2];
+  const maxVotes = Math.max(...votes);
+  return (
+    <div className="landing-preview-frame landing-results-preview" aria-label="Vista de resultados generales">
+      <div className="landing-preview-toolbar">
+        <span>Resultados generales</span>
+        <small>En progreso</small>
+      </div>
+      <div className="landing-preview-stats">
+        <strong>10</strong>
+        <span>Total de votos</span>
+        <strong>9</strong>
+        <span>Validos</span>
+      </div>
+      <div className="landing-preview-bars">
+        {SEED_CANDIDATES.map((candidate, index) => (
+          <div
+            className="landing-preview-bar-row"
+            style={
+              {
+                "--candidate-color": candidate.color,
+                "--bar-width": `${(votes[index] / maxVotes) * 100}%`
+              } as CSSProperties
+            }
+            key={candidate.id}
+          >
+            <span>{candidate.partyCode}</span>
+            <div>
+              <strong>{candidate.name}</strong>
+              <small>{candidate.party}</small>
+            </div>
+            <i>
+              <b />
+            </i>
+            <code>{votes[index]}</code>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LandingAuditPreview() {
+  return (
+    <div className="landing-preview-frame landing-table-preview" aria-label="Vista de auditoria detallada">
+      <div className="landing-preview-toolbar">
+        <span>Registros detallados</span>
+        <small>Auditoria</small>
+      </div>
+      <div className="landing-table-head">
+        <span>Nombre</span>
+        <span>DNI</span>
+        <span>Mesa</span>
+        <span>Validacion</span>
+      </div>
+      {[
+        ["Votante 0041", "74885098", "M-021", "Validado"],
+        ["Votante 0062", "74885099", "M-018", "Pendiente"],
+        ["Votante 0097", "74885110", "M-014", "Validado"]
+      ].map((row) => (
+        <div className="landing-table-row" key={row.join("-")}>
+          {row.map((cell) => (
+            <span key={cell}>{cell}</span>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LandingReportPreview() {
+  return (
+    <div className="landing-preview-frame landing-report-preview" aria-label="Vista de reportes automaticos">
+      <div className="landing-preview-toolbar">
+        <span>Reporte preliminar</span>
+        <small>Integridad</small>
+      </div>
+      <div className="landing-report-box">
+        <FileText size={24} weight="duotone" />
+        <strong>Resumen automatico del conteo</strong>
+        <span>Integridad, incidencias y resultados consolidados.</span>
+      </div>
+      <div className="landing-alert-line">
+        <WarningCircle size={17} />
+        <span>1 alerta operativa detectada</span>
+      </div>
+    </div>
+  );
+}
+
+function LandingUsersPreview() {
+  return (
+    <div className="landing-preview-frame landing-users-preview" aria-label="Vista de gestion de usuarios">
+      <div className="landing-preview-toolbar">
+        <span>Gestion de usuarios</span>
+        <small>Roles</small>
+      </div>
+      {[
+        ["Administrador CERTUS", "Administrador", "Activo"],
+        ["Auditor de mesa", "Auditor", "Activo"],
+        ["Miembro de mesa", "Miembro", "Activo"]
+      ].map((row) => (
+        <div className="landing-user-row" key={row[0]}>
+          <strong>{row[0]}</strong>
+          <span>{row[1]}</span>
+          <small>{row[2]}</small>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function LandingHistoryPreview() {
+  return (
+    <div className="landing-preview-frame landing-history-preview" aria-label="Vista de historial de acciones">
+      <div className="landing-preview-toolbar">
+        <span>Historial de acciones</span>
+        <small>Bitacora</small>
+      </div>
+      {[
+        ["login", "Inicio de sesion correcto"],
+        ["process_ballot", "Cedula CED-103670 registrada"],
+        ["cross_validate", "Registro validado por auditoria"]
+      ].map((row) => (
+        <div className="landing-history-row" key={row[0]}>
+          <ListChecks size={17} />
+          <strong>{row[0]}</strong>
+          <span>{row[1]}</span>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function CitizenQrOnlyPage({
