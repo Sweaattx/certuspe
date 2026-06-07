@@ -215,24 +215,30 @@ const navItems: Array<{
 ];
 
 const landingMetrics = [
-  { value: "20", label: "requisitos funcionales", detail: "Captura, registro, acceso, seguridad y gestion" },
-  { value: "5", label: "requisitos no funcionales", detail: "Rendimiento, disponibilidad, seguridad, usabilidad y mantenimiento" },
-  { value: "4", label: "mesas configuradas", detail: "M-014, M-018, M-021 y M-037" },
-  { value: "5", label: "candidatos de referencia", detail: "Primera vuelta electoral del Peru" }
+  { value: "2 s", label: "meta de procesamiento", detail: "Cada cedula pasa de captura a registro en una ventana operativa corta." },
+  { value: "4", label: "mesas activas", detail: "La demo distribuye el flujo entre M-014, M-018, M-021 y M-037." },
+  { value: "5", label: "perfiles de resultado", detail: "Candidatos, blancos, nulos, mesa y participacion quedan visibles." },
+  { value: "1", label: "registro verificable", detail: "Imagen, voto, mesa, hash y auditoria quedan conectados." }
 ];
 
 const landingContext = [
   {
-    label: "AS-IS",
-    title: "Conteo manual con baja trazabilidad",
-    text: "La espera por resultados, la suma manual y la comparacion tardia de actas abren espacio a errores, demoras y desconfianza ciudadana.",
-    points: ["Procedimientos manuales", "Validacion posterior", "Auditoria lenta"]
+    label: "Mesas",
+    title: "Captura ordenada desde el punto de votacion",
+    text: "La mesa registra cedulas con una ruta clara y conserva respaldo digital antes de enviar los datos al conteo preliminar.",
+    points: ["Cedula asociada a mesa", "Control de duplicidad", "Confirmacion visible"]
   },
   {
-    label: "TO-BE",
-    title: "Escaneo, evidencia y resultados preliminares",
-    text: "CERTUS captura la cedula, procesa marcas, genera respaldo digital y alimenta resultados visibles para operadores, auditores y ciudadania.",
-    points: ["Imagen digital", "Hash de integridad", "Resultados en tiempo real"]
+    label: "Auditoria",
+    title: "Evidencia lista para revisar y contrastar",
+    text: "Auditores pueden revisar mesa, distrito, DNI, candidato, tipo de voto y validacion sin depender de calculos manuales tardios.",
+    points: ["Detalle por mesa", "Validacion cruzada", "Historial de acciones"]
+  },
+  {
+    label: "Ciudadania",
+    title: "Resultados preliminares claros",
+    text: "La consulta publica muestra el avance del proceso con graficos simples y una lectura rapida del conteo.",
+    points: ["Conteo por candidato", "Participacion", "Actualizacion visible"]
   }
 ];
 
@@ -246,56 +252,56 @@ const landingHeroChecks = [
 const landingDeliverables = [
   {
     code: "01",
-    title: "Mapeo AS-IS / TO-BE",
-    text: "Analisis de ciudadania y auditores para reconocer demoras, desconfianza, errores de suma y puntos de mejora."
+    title: "Diagnostico del proceso",
+    text: "Identificamos los puntos donde aparecen demoras, errores de suma, desconfianza y falta de respaldo."
   },
   {
     code: "02",
-    title: "Requisitos y backlog",
-    text: "Veinte requisitos funcionales, cinco no funcionales, backlog de producto y tres sprint backlogs trazables."
+    title: "Arquitectura de operacion",
+    text: "Organizamos captura, procesamiento, registro, auditoria y resultados como un solo flujo de trabajo."
   },
   {
     code: "03",
-    title: "Wireframes y flujo operativo",
-    text: "Pantallas base para escaneo, resultados generales y resultados detallados con acceso por perfil."
+    title: "Experiencia por perfil",
+    text: "Disenamos vistas para mesa, auditoria, administracion y ciudadania con responsabilidades separadas."
   },
   {
     code: "04",
-    title: "Diagramas UML",
-    text: "Actividad, clases, objetos, secuencia y estados para explicar captura, procesamiento, hash y confirmacion."
+    title: "Demo funcional",
+    text: "El QR simula el acceso ciudadano cuando no se cuenta con escaner fisico, manteniendo el flujo verificable."
   }
 ];
 
 const landingProcess = [
   {
     label: "01",
-    title: "Captura fisica de cedula",
-    summary: "El miembro de mesa inserta la cedula en el terminal para obtener una imagen digital asociada a mesa, codigo y operador.",
-    control: "RF-001 / US-001",
+    title: "Captura",
+    summary: "La cedula se digitaliza y queda asociada a una mesa, un codigo y un operador responsable.",
+    control: "Escaneo",
     details: ["Codigo de cedula", "Mesa de votacion", "Imagen de respaldo"],
     icon: IdentificationCard
   },
   {
     label: "02",
-    title: "Procesamiento IA",
-    summary: "La imagen se interpreta para reconocer marcas, candidato seleccionado y tipo de voto antes del registro central.",
-    control: "RF-002 / RF-003 / RF-005",
+    title: "Lectura de marcas",
+    summary: "El sistema interpreta la marca del votante y clasifica el voto antes de registrarlo.",
+    control: "Vision digital",
     details: ["Deteccion de marcas", "Clasificacion del voto", "Candidato identificado"],
     icon: Pulse
   },
   {
     label: "03",
-    title: "Registro e integridad",
-    summary: "El sistema guarda voto e imagen en repositorios separados y genera una huella de integridad para auditoria.",
-    control: "RF-006 / RF-013 / RF-020",
+    title: "Integridad",
+    summary: "El voto y su evidencia se guardan con trazabilidad para impedir duplicados y facilitar auditoria.",
+    control: "Hash",
     details: ["Registro centralizado", "Hash del voto", "Bitacora de acciones"],
     icon: LockKey
   },
   {
     label: "04",
-    title: "Resultados y auditoria",
-    summary: "Los registros confirmados alimentan conteo preliminar, reportes automaticos, validacion cruzada e incidencias.",
-    control: "RF-009 / RF-014 / RF-016",
+    title: "Publicacion",
+    summary: "Los registros confirmados alimentan resultados, reportes y detalle por mesa para los perfiles autorizados.",
+    control: "Conteo",
     details: ["Resultados generales", "Detalle por mesa", "Reporte preliminar"],
     icon: ChartBar
   }
@@ -307,44 +313,55 @@ const landingScreens = [
     title: "Resultados generales",
     text: "Conteo preliminar por candidato, participacion y detalle por mesa.",
     image: landingResultsUrl,
-    coverage: ["RF-009", "RF-010", "RF-011"]
+    coverage: ["Conteo", "Grafico", "Mesa"]
   },
   {
     id: "audit",
     title: "Auditoria detallada",
     text: "Registros con DNI, mesa, distrito, tipo de voto, candidato y estado de validacion.",
     image: landingAuditUrl,
-    coverage: ["RF-012", "RF-014", "RF-015"]
+    coverage: ["Validacion", "DNI", "Detalle"]
   },
   {
     id: "reports",
     title: "Reportes automaticos",
     text: "Resumen de integridad, incidencias y datos listos para revision.",
     image: landingReportsUrl,
-    coverage: ["RF-016", "RNF-005"]
+    coverage: ["Reporte", "Riesgos", "JSON"]
   },
   {
     id: "users",
     title: "Gestion de usuarios",
     text: "Roles operativos para administradores, auditores, miembros de mesa y ciudadania.",
     image: landingUsersUrl,
-    coverage: ["RF-017", "RF-018"]
+    coverage: ["Roles", "Accesos", "Estado"]
   },
   {
     id: "history",
     title: "Historial de acciones",
     text: "Bitacora de accesos, escaneos, validaciones y actividad del sistema.",
     image: landingHistoryUrl,
-    coverage: ["RF-019", "RF-020"]
+    coverage: ["Logs", "Eventos", "Auditoria"]
   }
 ] as const;
 
-const landingNonFunctional = [
-  ["RNF-001", "Procesamiento menor a 2 segundos por voto", "Rendimiento"],
-  ["RNF-002", "Disponibilidad del 99% durante el proceso electoral", "Disponibilidad"],
-  ["RNF-003", "Proteccion de datos mediante cifrado", "Seguridad"],
-  ["RNF-004", "Uso intuitivo para miembros de mesa", "Usabilidad"],
-  ["RNF-005", "Mantenimiento sin afectar el funcionamiento general", "Mantenimiento"]
+const landingTrust = [
+  {
+    title: "Respaldo auditable",
+    text: "Cada registro conserva imagen, mesa, codigo y huella de integridad para revisiones posteriores."
+  },
+  {
+    title: "Roles separados",
+    text: "Administracion, auditoria, mesa y ciudadania acceden a vistas distintas segun su responsabilidad."
+  },
+  {
+    title: "Resultados entendibles",
+    text: "La informacion se presenta en graficos, detalle por mesa y reportes sin saturar al usuario final."
+  },
+  {
+    title: "Demo adaptable",
+    text: "El QR permite probar el flujo en telefono, proyector o PC cuando no existe equipo de escaneo real."
+  }
 ];
 
 const landingProfessor = "Jorge Luis Delgado Vite";
@@ -868,10 +885,10 @@ function LandingPage() {
           </span>
         </a>
         <nav aria-label="Navegacion publica">
-          <a href="#contexto">Contexto</a>
+          <a href="#solucion">Solucion</a>
           <a href="#proceso">Proceso</a>
           <a href="#plataforma">Plataforma</a>
-          <a href="#requisitos">Requisitos</a>
+          <a href="#confianza">Confianza</a>
           <a href="#equipo">Equipo</a>
         </nav>
         <a className="landing-login" href="/app">
@@ -882,16 +899,16 @@ function LandingPage() {
 
       <section className="landing-hero">
         <div className="landing-hero-copy landing-reveal" style={revealStyle(0)}>
-          <span className="eyebrow">Proyecto CERTUSPE</span>
-          <h1>Conteo preliminar verificable para procesos electorales.</h1>
+          <span className="eyebrow">CERTUSPE</span>
+          <h1>Resultados preliminares con respaldo verificable.</h1>
           <p>
-            CERTUS propone una capa operativa para digitalizar cedulas, interpretar marcas, conservar evidencia,
-            auditar registros y publicar resultados preliminares con orden institucional.
+            Una plataforma para acelerar el conteo, reducir errores manuales y entregar evidencia digital desde la
+            mesa de votacion hasta la publicacion de resultados.
           </p>
           <div className="landing-project-strip" aria-label="Datos del proyecto">
-            <span>{PROJECT_META.university}</span>
-            <span>{PROJECT_META.course}</span>
-            <span>Proceso 2026</span>
+            <span>Escaneo de cedulas</span>
+            <span>Auditoria por mesa</span>
+            <span>Resultados publicos</span>
           </div>
           <div className="landing-hero-flow" aria-label="Flujo resumido CERTUS">
             <span>Captura</span>
@@ -914,7 +931,7 @@ function LandingPage() {
           <div className="landing-hero-panel">
             <div className="landing-panel-head">
               <span>CERTUS</span>
-              <code>Proceso electoral 2026</code>
+              <code>Conteo preliminar</code>
             </div>
             <div className="landing-panel-flow">
               {landingHeroChecks.map(([label, value], index) => (
@@ -926,9 +943,9 @@ function LandingPage() {
               ))}
             </div>
             <div className="landing-panel-result">
-              <span>Resultado preliminar</span>
-              <strong>Registro validado y listo para auditoria</strong>
-              <p>El QR funciona como demostracion publica cuando no existe un escaner fisico disponible.</p>
+              <span>Resultado operativo</span>
+              <strong>Registro validado y listo para revision</strong>
+              <p>La demostracion por QR replica el recorrido ciudadano cuando no hay escaner fisico disponible.</p>
             </div>
           </div>
         </div>
@@ -944,15 +961,15 @@ function LandingPage() {
         ))}
       </section>
 
-      <section className="landing-section landing-context-section" id="contexto">
+      <section className="landing-section landing-context-section" id="solucion">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Problema y solucion esperada</span>
-            <h2>De un conteo manual vulnerable a un flujo verificable.</h2>
+            <span className="eyebrow">Solucion operativa</span>
+            <h2>Menos espera, menos duda, mas trazabilidad.</h2>
           </div>
           <p>
-            La documentacion del proyecto parte del escenario AS-IS y define un TO-BE donde la tecnologia reduce
-            tiempos, errores de suma y falta de respaldo inmediato.
+            CERTUSPE conecta mesa, auditoria y ciudadania en una experiencia simple: capturar, validar, respaldar y
+            consultar resultados sin depender de procesos manuales dispersos.
           </p>
         </div>
         <div className="landing-context-grid">
@@ -974,12 +991,12 @@ function LandingPage() {
       <section className="landing-section landing-deliverables-section" aria-label="Trazabilidad del proyecto">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Trazabilidad documental</span>
-            <h2>El proyecto integra diagnostico, diseno y ejecucion.</h2>
+            <span className="eyebrow">Estrategia de producto</span>
+            <h2>Del problema electoral a una demo funcional.</h2>
           </div>
           <p>
-            CERTUS se presenta como una solucion completa: diagnostico, requisitos, plan de trabajo, interfaces,
-            diagramas y riesgos del proceso electoral.
+            La propuesta combina investigacion, arquitectura y experiencia de usuario para mostrar como se podria
+            modernizar el conteo preliminar sin perder control fisico del proceso.
           </p>
         </div>
         <div className="landing-deliverable-list">
@@ -996,12 +1013,12 @@ function LandingPage() {
       <section className="landing-section" id="proceso">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Flujo original CERTUS</span>
-            <h2>Del escaneo fisico a resultados verificables.</h2>
+            <span className="eyebrow">Flujo CERTUSPE</span>
+            <h2>Un recorrido claro desde la cedula hasta el resultado.</h2>
           </div>
           <p>
-            El prototipo conserva la logica del DEF: capturar la cedula, procesar imagen, registrar integridad,
-            bloquear duplicados y mostrar resultados preliminares.
+            El flujo esta pensado para una mesa real: primero se captura la cedula, luego se interpreta, se protege el
+            registro y finalmente se publica informacion preliminar.
           </p>
         </div>
         <div className="landing-process-timeline">
@@ -1034,12 +1051,12 @@ function LandingPage() {
       <section className="landing-section landing-system-section" id="plataforma">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Plataforma implementada</span>
-            <h2>Una sola vista del sistema funcionando.</h2>
+            <span className="eyebrow">Producto en pantalla</span>
+            <h2>Paneles listos para operar y presentar.</h2>
           </div>
           <p>
-            Las capturas se muestran juntas como evidencia del producto: resultados, auditoria, reportes, usuarios e
-            historial dentro del mismo panel operativo.
+            Las capturas se agrupan como una galeria del producto. No son el centro de la landing: son la evidencia de
+            que el flujo ya puede demostrarse.
           </p>
         </div>
         <div className="landing-gallery-grid">
@@ -1065,53 +1082,35 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section landing-requirements-section" id="requisitos">
+      <section className="landing-section landing-trust-section" id="confianza">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Cobertura funcional</span>
-            <h2>Requisitos convertidos en modulos visibles.</h2>
+            <span className="eyebrow">Confianza operativa</span>
+            <h2>Disenado para explicar, controlar y auditar.</h2>
           </div>
           <p>
-            La solucion no presenta una idea aislada: resume como la aplicacion cubre los RF y RNF definidos en el
-            Documento de Especificaciones Funcionales.
+            CERTUSPE no reemplaza la fiscalizacion: la ordena. Cada vista ayuda a revisar el proceso con informacion
+            mas clara, trazable y facil de presentar.
           </p>
         </div>
-        <div className="landing-requirement-layout">
-          <div className="landing-requirement-list">
-            {requirementGroups.map((group, index) => (
-              <article className="landing-requirement-row landing-reveal" style={revealStyle(index)} key={group.title}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <h3>{group.title}</h3>
-                  <ul>
-                    {group.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              </article>
-            ))}
-          </div>
-          <aside className="landing-rnf-panel">
-            <span className="eyebrow">Requisitos no funcionales</span>
-            {landingNonFunctional.map(([code, text, type]) => (
-              <div className="landing-rnf-row" key={code}>
-                <code>{code}</code>
-                <p>{text}</p>
-                <span>{type}</span>
-              </div>
-            ))}
-          </aside>
+        <div className="landing-trust-grid">
+          {landingTrust.map((item, index) => (
+            <article className="landing-trust-card landing-reveal" style={revealStyle(index)} key={item.title}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
       <section className="landing-section landing-team-section" id="equipo">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">{PROJECT_META.course}</span>
+            <span className="eyebrow">Equipo y respaldo academico</span>
             <h2>{PROJECT_META.systemName}</h2>
           </div>
-          <p>{PROJECT_META.subtitle}</p>
+          <p>{PROJECT_META.subtitle}. Proyecto desarrollado para {PROJECT_META.course}.</p>
         </div>
         <div className="landing-project-card">
           <dl>
@@ -1143,8 +1142,8 @@ function LandingPage() {
       <section className="landing-final">
         <div>
           <span className="eyebrow">CERTUSPE</span>
-          <h2>Presentacion completa, ordenada y verificable.</h2>
-          <p>Accede al panel, revisa resultados o inicia el flujo de votacion por QR.</p>
+          <h2>Una demostracion lista para presentar.</h2>
+          <p>Abre el sistema, muestra el QR, revisa el panel y explica el recorrido completo del conteo preliminar.</p>
         </div>
         <a className="primary-button" href="/app">
           Abrir sistema
