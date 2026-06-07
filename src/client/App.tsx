@@ -17,8 +17,13 @@ import {
 } from "@phosphor-icons/react";
 import QRCode from "qrcode";
 import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
+import landingAuditUrl from "./assets/landing-audit.png";
+import landingHistoryUrl from "./assets/landing-history.png";
+import landingReportsUrl from "./assets/landing-reports.png";
+import landingResultsUrl from "./assets/landing-results.png";
+import landingUsersUrl from "./assets/landing-users.png";
 import upcLogoUrl from "./assets/upc-logo.png";
-import { PROJECT_META, SEED_CANDIDATES } from "../shared/constants";
+import { PROJECT_META } from "../shared/constants";
 import type {
   AuditLog,
   Candidate,
@@ -241,31 +246,31 @@ const landingScreens = [
     id: "results",
     title: "Resultados generales",
     text: "Conteo preliminar por candidato, participacion y detalle por mesa.",
-    icon: ChartBar
+    image: landingResultsUrl
   },
   {
     id: "audit",
     title: "Auditoria detallada",
     text: "Registros con DNI, mesa, distrito, tipo de voto, candidato y estado de validacion.",
-    icon: SlidersHorizontal
+    image: landingAuditUrl
   },
   {
     id: "reports",
     title: "Reportes automaticos",
     text: "Resumen de integridad, incidencias y datos listos para revision.",
-    icon: FileText
+    image: landingReportsUrl
   },
   {
     id: "users",
     title: "Gestion de usuarios",
     text: "Roles operativos para administradores, auditores, miembros de mesa y ciudadania.",
-    icon: UserGear
+    image: landingUsersUrl
   },
   {
     id: "history",
     title: "Historial de acciones",
     text: "Bitacora de accesos, escaneos, validaciones y actividad del sistema.",
-    icon: ClockCounterClockwise
+    image: landingHistoryUrl
   }
 ] as const;
 
@@ -765,7 +770,6 @@ function revealStyle(index: number): CSSProperties {
 }
 
 function LandingPage() {
-  const heroBallot = createBallotPreview(SEED_CANDIDATES, [SEED_CANDIDATES[0].id], "CED-480117");
   return (
     <main className="landing-page">
       <header className="landing-nav">
@@ -789,12 +793,17 @@ function LandingPage() {
 
       <section className="landing-hero">
         <div className="landing-hero-copy landing-reveal" style={revealStyle(0)}>
-          <span className="eyebrow">Proceso electoral CERTUS 2026</span>
-          <h1>Conteo preliminar claro, auditable y rapido.</h1>
+          <span className="eyebrow">STELA / CERTUS</span>
+          <h1>Sistema de conteo preliminar electoral.</h1>
           <p>
-            CERTUS registra cedulas, procesa marcas con apoyo de inteligencia artificial y publica resultados
-            preliminares con trazabilidad para auditoria.
+            Plataforma academica para capturar cedulas, procesar marcas, registrar evidencia digital y publicar
+            resultados preliminares con trazabilidad de auditoria.
           </p>
+          <div className="landing-project-strip" aria-label="Datos del proyecto">
+            <span>UPC</span>
+            <span>SI720</span>
+            <span>Proceso 2026</span>
+          </div>
           <div className="landing-actions">
             <a className="primary-button" href="/app">
               Acceder al sistema
@@ -806,17 +815,17 @@ function LandingPage() {
           </div>
         </div>
 
-        <div className="landing-hero-visual landing-reveal" style={revealStyle(1)} aria-label="Vista de cedula digital">
-          <div className="landing-scan-frame">
-            <span />
-            <span />
-            <span />
-            <span />
-            <img src={heroBallot} alt="Cedula digital CERTUS con marca de voto" />
+        <div className="landing-hero-visual landing-reveal" style={revealStyle(1)} aria-label="Vista real del sistema">
+          <div className="landing-product-window">
+            <div className="landing-window-bar">
+              <span>Panel administrador</span>
+              <small>CERTUS</small>
+            </div>
+            <img src={landingResultsUrl} alt="Panel de resultados generales de CERTUS" />
           </div>
           <div className="landing-hero-note">
-            <strong>Terminal CERTUS</strong>
-            <small>Captura, IA, hash y confirmacion en un flujo unico.</small>
+            <strong>Interfaz real del sistema</strong>
+            <small>Resultados, auditoria, reportes y usuarios desde el panel operativo.</small>
           </div>
         </div>
       </section>
@@ -863,26 +872,25 @@ function LandingPage() {
 
       <section className="landing-section landing-system-section" id="sistema">
         <div className="landing-section-head">
-          <span className="eyebrow">Vistas del producto</span>
-          <h2>Una plataforma para conteo, control y auditoria</h2>
+          <span className="eyebrow">Producto en ejecucion</span>
+          <h2>Pantallas reales del flujo operativo</h2>
           <p>
-            Estas pantallas resumen el recorrido visual del sistema: resultados, registros, reportes, usuarios e
-            historial operativo.
+            El sistema mantiene las vistas principales del documento funcional: resultados, auditoria por mesa,
+            reportes, administracion de usuarios e historial.
           </p>
         </div>
-        <div className="landing-screen-grid">
+        <div className="landing-proof-list">
           {landingScreens.map((screen, index) => {
-            const Icon = screen.icon;
             return (
-              <article className="landing-screen-card landing-reveal" style={revealStyle(index)} key={screen.id}>
-                <div className="landing-screen-copy">
-                  <Icon size={22} weight="duotone" />
-                  <div>
-                    <h3>{screen.title}</h3>
-                    <p>{screen.text}</p>
-                  </div>
+              <article className="landing-proof-row landing-reveal" style={revealStyle(index)} key={screen.id}>
+                <div className="landing-proof-copy">
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <h3>{screen.title}</h3>
+                  <p>{screen.text}</p>
                 </div>
-                <LandingScreenPreview id={screen.id} />
+                <figure>
+                  <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
+                </figure>
               </article>
             );
           })}
@@ -931,157 +939,6 @@ function LandingPage() {
         </a>
       </section>
     </main>
-  );
-}
-
-function LandingScreenPreview({ id }: { id: (typeof landingScreens)[number]["id"] }) {
-  if (id === "results") {
-    return <LandingResultsPreview />;
-  }
-  if (id === "audit") {
-    return <LandingAuditPreview />;
-  }
-  if (id === "reports") {
-    return <LandingReportPreview />;
-  }
-  if (id === "users") {
-    return <LandingUsersPreview />;
-  }
-  return <LandingHistoryPreview />;
-}
-
-function LandingResultsPreview() {
-  const votes = [3, 2, 1, 1, 2];
-  const maxVotes = Math.max(...votes);
-  return (
-    <div className="landing-preview-frame landing-results-preview" aria-label="Vista de resultados generales">
-      <div className="landing-preview-toolbar">
-        <span>Resultados generales</span>
-        <small>En progreso</small>
-      </div>
-      <div className="landing-preview-stats">
-        <strong>10</strong>
-        <span>Total de votos</span>
-        <strong>9</strong>
-        <span>Validos</span>
-      </div>
-      <div className="landing-preview-bars">
-        {SEED_CANDIDATES.map((candidate, index) => (
-          <div
-            className="landing-preview-bar-row"
-            style={
-              {
-                "--candidate-color": candidate.color,
-                "--bar-width": `${(votes[index] / maxVotes) * 100}%`
-              } as CSSProperties
-            }
-            key={candidate.id}
-          >
-            <span>{candidate.partyCode}</span>
-            <div>
-              <strong>{candidate.name}</strong>
-              <small>{candidate.party}</small>
-            </div>
-            <i>
-              <b />
-            </i>
-            <code>{votes[index]}</code>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function LandingAuditPreview() {
-  return (
-    <div className="landing-preview-frame landing-table-preview" aria-label="Vista de auditoria detallada">
-      <div className="landing-preview-toolbar">
-        <span>Registros detallados</span>
-        <small>Auditoria</small>
-      </div>
-      <div className="landing-table-head">
-        <span>Nombre</span>
-        <span>DNI</span>
-        <span>Mesa</span>
-        <span>Validacion</span>
-      </div>
-      {[
-        ["Votante 0041", "74885098", "M-021", "Validado"],
-        ["Votante 0062", "74885099", "M-018", "Pendiente"],
-        ["Votante 0097", "74885110", "M-014", "Validado"]
-      ].map((row) => (
-        <div className="landing-table-row" key={row.join("-")}>
-          {row.map((cell) => (
-            <span key={cell}>{cell}</span>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function LandingReportPreview() {
-  return (
-    <div className="landing-preview-frame landing-report-preview" aria-label="Vista de reportes automaticos">
-      <div className="landing-preview-toolbar">
-        <span>Reporte preliminar</span>
-        <small>Integridad</small>
-      </div>
-      <div className="landing-report-box">
-        <FileText size={24} weight="duotone" />
-        <strong>Resumen automatico del conteo</strong>
-        <span>Integridad, incidencias y resultados consolidados.</span>
-      </div>
-      <div className="landing-alert-line">
-        <WarningCircle size={17} />
-        <span>1 alerta operativa detectada</span>
-      </div>
-    </div>
-  );
-}
-
-function LandingUsersPreview() {
-  return (
-    <div className="landing-preview-frame landing-users-preview" aria-label="Vista de gestion de usuarios">
-      <div className="landing-preview-toolbar">
-        <span>Gestion de usuarios</span>
-        <small>Roles</small>
-      </div>
-      {[
-        ["Administrador CERTUS", "Administrador", "Activo"],
-        ["Auditor de mesa", "Auditor", "Activo"],
-        ["Miembro de mesa", "Miembro", "Activo"]
-      ].map((row) => (
-        <div className="landing-user-row" key={row[0]}>
-          <strong>{row[0]}</strong>
-          <span>{row[1]}</span>
-          <small>{row[2]}</small>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function LandingHistoryPreview() {
-  return (
-    <div className="landing-preview-frame landing-history-preview" aria-label="Vista de historial de acciones">
-      <div className="landing-preview-toolbar">
-        <span>Historial de acciones</span>
-        <small>Bitacora</small>
-      </div>
-      {[
-        ["login", "Inicio de sesion correcto"],
-        ["process_ballot", "Cedula CED-103670 registrada"],
-        ["cross_validate", "Registro validado por auditoria"]
-      ].map((row) => (
-        <div className="landing-history-row" key={row[0]}>
-          <ListChecks size={17} />
-          <strong>{row[0]}</strong>
-          <span>{row[1]}</span>
-        </div>
-      ))}
-    </div>
   );
 }
 
