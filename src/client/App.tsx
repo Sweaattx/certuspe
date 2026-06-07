@@ -236,6 +236,13 @@ const landingContext = [
   }
 ];
 
+const landingHeroChecks = [
+  ["Mesa activa", "M-014"],
+  ["Cedula procesada", "CED-483061"],
+  ["Marca detectada", "Valida"],
+  ["Hash", "Confirmado"]
+];
+
 const landingDeliverables = [
   {
     code: "01",
@@ -863,7 +870,7 @@ function LandingPage() {
         <nav aria-label="Navegacion publica">
           <a href="#contexto">Contexto</a>
           <a href="#proceso">Proceso</a>
-          <a href="#sistema">Sistema</a>
+          <a href="#plataforma">Plataforma</a>
           <a href="#requisitos">Requisitos</a>
           <a href="#equipo">Equipo</a>
         </nav>
@@ -875,11 +882,11 @@ function LandingPage() {
 
       <section className="landing-hero">
         <div className="landing-hero-copy landing-reveal" style={revealStyle(0)}>
-          <span className="eyebrow">STELA / CERTUS</span>
-          <h1>Conteo preliminar electoral con evidencia digital.</h1>
+          <span className="eyebrow">Proyecto CERTUSPE</span>
+          <h1>Conteo preliminar verificable para procesos electorales.</h1>
           <p>
-            Plataforma academica para capturar cedulas, interpretar marcas, conservar respaldo digital, auditar
-            registros y publicar resultados preliminares con una experiencia clara para cada perfil.
+            CERTUS propone una capa operativa para digitalizar cedulas, interpretar marcas, conservar evidencia,
+            auditar registros y publicar resultados preliminares con orden institucional.
           </p>
           <div className="landing-project-strip" aria-label="Datos del proyecto">
             <span>{PROJECT_META.university}</span>
@@ -903,17 +910,26 @@ function LandingPage() {
           </div>
         </div>
 
-        <div className="landing-hero-visual landing-reveal" style={revealStyle(1)} aria-label="Vista real del sistema">
-          <div className="landing-product-window">
-            <div className="landing-window-bar">
-              <span>Panel administrador</span>
-              <small>CERTUS</small>
+        <div className="landing-hero-visual landing-reveal" style={revealStyle(1)} aria-label="Resumen operativo CERTUS">
+          <div className="landing-hero-panel">
+            <div className="landing-panel-head">
+              <span>CERTUS</span>
+              <code>Proceso electoral 2026</code>
             </div>
-            <img src={landingResultsUrl} alt="Panel de resultados generales de CERTUS" />
-          </div>
-          <div className="landing-product-caption">
-            <span>Panel real con resultados, auditoria, reportes, usuarios e historial.</span>
-            <code>RF-009 / RF-010 / RF-011</code>
+            <div className="landing-panel-flow">
+              {landingHeroChecks.map(([label, value], index) => (
+                <div className="landing-panel-step" style={revealStyle(index)} key={label}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{label}</strong>
+                  <code>{value}</code>
+                </div>
+              ))}
+            </div>
+            <div className="landing-panel-result">
+              <span>Resultado preliminar</span>
+              <strong>Registro validado y listo para auditoria</strong>
+              <p>El QR funciona como demostracion publica cuando no existe un escaner fisico disponible.</p>
+            </div>
           </div>
         </div>
       </section>
@@ -959,7 +975,7 @@ function LandingPage() {
         <div className="landing-section-head split">
           <div>
             <span className="eyebrow">Trazabilidad documental</span>
-            <h2>La landing resume el proyecto, no solo una pantalla.</h2>
+            <h2>El proyecto integra diagnostico, diseno y ejecucion.</h2>
           </div>
           <p>
             CERTUS se presenta como una solucion completa: diagnostico, requisitos, plan de trabajo, interfaces,
@@ -1015,22 +1031,25 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section landing-system-section" id="sistema">
+      <section className="landing-section landing-system-section" id="plataforma">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Producto en ejecucion</span>
-            <h2>Pantallas reales del flujo operativo.</h2>
+            <span className="eyebrow">Plataforma implementada</span>
+            <h2>Una sola vista del sistema funcionando.</h2>
           </div>
           <p>
-            Cada pantalla responde a un bloque funcional del documento: visualizacion, auditoria, reportes,
-            gestion de usuarios y consulta historica.
+            Las capturas se muestran juntas como evidencia del producto: resultados, auditoria, reportes, usuarios e
+            historial dentro del mismo panel operativo.
           </p>
         </div>
-        <div className="landing-proof-list">
+        <div className="landing-gallery-grid">
           {landingScreens.map((screen, index) => {
             return (
-              <article className="landing-proof-row landing-reveal" style={revealStyle(index)} key={screen.id}>
-                <div className="landing-proof-copy">
+              <article className="landing-gallery-card landing-reveal" style={revealStyle(index)} key={screen.id}>
+                <figure>
+                  <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
+                </figure>
+                <div className="landing-gallery-copy">
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <h3>{screen.title}</h3>
                   <p>{screen.text}</p>
@@ -1040,10 +1059,6 @@ function LandingPage() {
                     ))}
                   </div>
                 </div>
-                <figure>
-                  <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
-                  <figcaption>{screen.title} en el panel operativo CERTUS</figcaption>
-                </figure>
               </article>
             );
           })}
@@ -1057,7 +1072,7 @@ function LandingPage() {
             <h2>Requisitos convertidos en modulos visibles.</h2>
           </div>
           <p>
-            La landing no presenta una idea aislada: resume como la aplicacion cubre los RF y RNF definidos en el
+            La solucion no presenta una idea aislada: resume como la aplicacion cubre los RF y RNF definidos en el
             Documento de Especificaciones Funcionales.
           </p>
         </div>
@@ -1128,7 +1143,7 @@ function LandingPage() {
       <section className="landing-final">
         <div>
           <span className="eyebrow">CERTUSPE</span>
-          <h2>Demostracion completa, ordenada y verificable.</h2>
+          <h2>Presentacion completa, ordenada y verificable.</h2>
           <p>Accede al panel, revisa resultados o inicia el flujo de votacion por QR.</p>
         </div>
         <a className="primary-button" href="/app">
