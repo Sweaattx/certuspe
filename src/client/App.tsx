@@ -13,6 +13,7 @@ import {
   SignOut,
   SlidersHorizontal,
   UserGear,
+  UsersThree,
   WarningCircle
 } from "@phosphor-icons/react";
 import QRCode from "qrcode";
@@ -361,16 +362,6 @@ function landingMemberName(name: string): string {
   const cleanName = projectMemberName(name);
   const [lastName, firstName] = cleanName.split(",").map((part) => part.trim());
   return firstName ? `${firstName} ${lastName}` : cleanName;
-}
-
-function landingMemberInitials(name: string): string {
-  return landingMemberName(name)
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
 }
 
 function formatDate(value: string): string {
@@ -1023,7 +1014,9 @@ function LandingPage() {
           <div className="landing-member-grid" aria-label="Miembros del proyecto">
             {PROJECT_META.members.map((member, index) => (
               <div className="landing-member-card landing-reveal" style={revealStyle(index + 1)} key={member.code}>
-                <span className="landing-member-mark">{landingMemberInitials(member.name)}</span>
+                <span className="landing-member-mark">
+                  <UsersThree size={18} weight="duotone" aria-hidden="true" />
+                </span>
                 <strong>{landingMemberName(member.name)}</strong>
               </div>
             ))}
