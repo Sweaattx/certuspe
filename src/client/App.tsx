@@ -1017,7 +1017,7 @@ function LandingPage() {
         <div className="landing-team-panel">
           <div className="landing-team-copy">
             <span className="eyebrow">Equipo</span>
-            <h2>CERTUSPE</h2>
+            <h2>CERTUS</h2>
             <p>Equipo responsable del producto, la validacion operativa y la experiencia ciudadana.</p>
           </div>
           <div className="landing-member-grid" aria-label="Miembros del proyecto">
