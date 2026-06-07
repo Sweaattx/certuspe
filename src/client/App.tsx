@@ -214,29 +214,82 @@ const navItems: Array<{
   { id: "project", label: "Proyecto", roles: "all", icon: Archive }
 ];
 
+const landingMetrics = [
+  { value: "20", label: "requisitos funcionales", detail: "Captura, registro, acceso, seguridad y gestion" },
+  { value: "5", label: "requisitos no funcionales", detail: "Rendimiento, disponibilidad, seguridad, usabilidad y mantenimiento" },
+  { value: "4", label: "mesas configuradas", detail: "M-014, M-018, M-021 y M-037" },
+  { value: "5", label: "candidatos de referencia", detail: "Primera vuelta electoral del Peru" }
+];
+
+const landingContext = [
+  {
+    label: "AS-IS",
+    title: "Conteo manual con baja trazabilidad",
+    text: "La espera por resultados, la suma manual y la comparacion tardia de actas abren espacio a errores, demoras y desconfianza ciudadana.",
+    points: ["Procedimientos manuales", "Validacion posterior", "Auditoria lenta"]
+  },
+  {
+    label: "TO-BE",
+    title: "Escaneo, evidencia y resultados preliminares",
+    text: "CERTUS captura la cedula, procesa marcas, genera respaldo digital y alimenta resultados visibles para operadores, auditores y ciudadania.",
+    points: ["Imagen digital", "Hash de integridad", "Resultados en tiempo real"]
+  }
+];
+
+const landingDeliverables = [
+  {
+    code: "01",
+    title: "Mapeo AS-IS / TO-BE",
+    text: "Analisis de ciudadania y auditores para reconocer demoras, desconfianza, errores de suma y puntos de mejora."
+  },
+  {
+    code: "02",
+    title: "Requisitos y backlog",
+    text: "Veinte requisitos funcionales, cinco no funcionales, backlog de producto y tres sprint backlogs trazables."
+  },
+  {
+    code: "03",
+    title: "Wireframes y flujo operativo",
+    text: "Pantallas base para escaneo, resultados generales y resultados detallados con acceso por perfil."
+  },
+  {
+    code: "04",
+    title: "Diagramas UML",
+    text: "Actividad, clases, objetos, secuencia y estados para explicar captura, procesamiento, hash y confirmacion."
+  }
+];
+
 const landingProcess = [
   {
     label: "01",
-    title: "Captura fisica",
-    text: "El terminal escanea la cedula, registra mesa, operador, codigo y evidencia digital antes del deposito fisico.",
+    title: "Captura fisica de cedula",
+    summary: "El miembro de mesa inserta la cedula en el terminal para obtener una imagen digital asociada a mesa, codigo y operador.",
+    control: "RF-001 / US-001",
+    details: ["Codigo de cedula", "Mesa de votacion", "Imagen de respaldo"],
     icon: IdentificationCard
   },
   {
     label: "02",
     title: "Procesamiento IA",
-    text: "El sistema interpreta marcas, detecta el candidato seleccionado y clasifica el voto como valido, blanco o nulo.",
+    summary: "La imagen se interpreta para reconocer marcas, candidato seleccionado y tipo de voto antes del registro central.",
+    control: "RF-002 / RF-003 / RF-005",
+    details: ["Deteccion de marcas", "Clasificacion del voto", "Candidato identificado"],
     icon: Pulse
   },
   {
     label: "03",
-    title: "Hash y respaldo",
-    text: "Cada registro genera una huella de integridad y conserva imagen digital para auditoria posterior.",
+    title: "Registro e integridad",
+    summary: "El sistema guarda voto e imagen en repositorios separados y genera una huella de integridad para auditoria.",
+    control: "RF-006 / RF-013 / RF-020",
+    details: ["Registro centralizado", "Hash del voto", "Bitacora de acciones"],
     icon: LockKey
   },
   {
     label: "04",
-    title: "Resultados",
-    text: "Los datos confirmados alimentan resultados preliminares, reportes automaticos e incidencias operativas.",
+    title: "Resultados y auditoria",
+    summary: "Los registros confirmados alimentan conteo preliminar, reportes automaticos, validacion cruzada e incidencias.",
+    control: "RF-009 / RF-014 / RF-016",
+    details: ["Resultados generales", "Detalle por mesa", "Reporte preliminar"],
     icon: ChartBar
   }
 ];
@@ -246,42 +299,48 @@ const landingScreens = [
     id: "results",
     title: "Resultados generales",
     text: "Conteo preliminar por candidato, participacion y detalle por mesa.",
-    image: landingResultsUrl
+    image: landingResultsUrl,
+    coverage: ["RF-009", "RF-010", "RF-011"]
   },
   {
     id: "audit",
     title: "Auditoria detallada",
     text: "Registros con DNI, mesa, distrito, tipo de voto, candidato y estado de validacion.",
-    image: landingAuditUrl
+    image: landingAuditUrl,
+    coverage: ["RF-012", "RF-014", "RF-015"]
   },
   {
     id: "reports",
     title: "Reportes automaticos",
     text: "Resumen de integridad, incidencias y datos listos para revision.",
-    image: landingReportsUrl
+    image: landingReportsUrl,
+    coverage: ["RF-016", "RNF-005"]
   },
   {
     id: "users",
     title: "Gestion de usuarios",
     text: "Roles operativos para administradores, auditores, miembros de mesa y ciudadania.",
-    image: landingUsersUrl
+    image: landingUsersUrl,
+    coverage: ["RF-017", "RF-018"]
   },
   {
     id: "history",
     title: "Historial de acciones",
     text: "Bitacora de accesos, escaneos, validaciones y actividad del sistema.",
-    image: landingHistoryUrl
+    image: landingHistoryUrl,
+    coverage: ["RF-019", "RF-020"]
   }
 ] as const;
 
-const landingCapabilities = [
-  "Conteo preliminar automatizado",
-  "Validacion cruzada con actas fisicas",
-  "Control de duplicidad por cedula",
-  "Transmision segura de datos",
-  "Reportes para auditoria",
-  "Consulta publica de resultados"
+const landingNonFunctional = [
+  ["RNF-001", "Procesamiento menor a 2 segundos por voto", "Rendimiento"],
+  ["RNF-002", "Disponibilidad del 99% durante el proceso electoral", "Disponibilidad"],
+  ["RNF-003", "Proteccion de datos mediante cifrado", "Seguridad"],
+  ["RNF-004", "Uso intuitivo para miembros de mesa", "Usabilidad"],
+  ["RNF-005", "Mantenimiento sin afectar el funcionamiento general", "Mantenimiento"]
 ];
+
+const landingProfessor = "Jorge Luis Delgado Vite";
 
 function roleLabel(role: Role): string {
   const labels: Record<Role, string> = {
@@ -770,6 +829,27 @@ function revealStyle(index: number): CSSProperties {
 }
 
 function LandingPage() {
+  useEffect(() => {
+    const elements = Array.from(document.querySelectorAll<HTMLElement>(".landing-reveal"));
+    if (!("IntersectionObserver" in window)) {
+      elements.forEach((element) => element.classList.add("is-visible"));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.16, rootMargin: "0px 0px -8% 0px" }
+    );
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <main className="landing-page">
       <header className="landing-nav">
@@ -781,8 +861,10 @@ function LandingPage() {
           </span>
         </a>
         <nav aria-label="Navegacion publica">
+          <a href="#contexto">Contexto</a>
           <a href="#proceso">Proceso</a>
           <a href="#sistema">Sistema</a>
+          <a href="#requisitos">Requisitos</a>
           <a href="#equipo">Equipo</a>
         </nav>
         <a className="landing-login" href="/app">
@@ -794,15 +876,21 @@ function LandingPage() {
       <section className="landing-hero">
         <div className="landing-hero-copy landing-reveal" style={revealStyle(0)}>
           <span className="eyebrow">STELA / CERTUS</span>
-          <h1>Sistema de conteo preliminar electoral.</h1>
+          <h1>Conteo preliminar electoral con evidencia digital.</h1>
           <p>
-            Plataforma academica para capturar cedulas, procesar marcas, registrar evidencia digital y publicar
-            resultados preliminares con trazabilidad de auditoria.
+            Plataforma academica para capturar cedulas, interpretar marcas, conservar respaldo digital, auditar
+            registros y publicar resultados preliminares con una experiencia clara para cada perfil.
           </p>
           <div className="landing-project-strip" aria-label="Datos del proyecto">
-            <span>UPC</span>
-            <span>SI720</span>
+            <span>{PROJECT_META.university}</span>
+            <span>{PROJECT_META.course}</span>
             <span>Proceso 2026</span>
+          </div>
+          <div className="landing-hero-flow" aria-label="Flujo resumido CERTUS">
+            <span>Captura</span>
+            <span>Procesamiento</span>
+            <span>Hash</span>
+            <span>Confirmacion</span>
           </div>
           <div className="landing-actions">
             <a className="primary-button" href="/app">
@@ -823,47 +911,104 @@ function LandingPage() {
             </div>
             <img src={landingResultsUrl} alt="Panel de resultados generales de CERTUS" />
           </div>
-          <div className="landing-hero-note">
-            <strong>Interfaz real del sistema</strong>
-            <small>Resultados, auditoria, reportes y usuarios desde el panel operativo.</small>
+          <div className="landing-product-caption">
+            <span>Panel real con resultados, auditoria, reportes, usuarios e historial.</span>
+            <code>RF-009 / RF-010 / RF-011</code>
           </div>
         </div>
       </section>
 
       <section className="landing-metrics" aria-label="Indicadores del sistema">
-        {[
-          ["20", "requisitos funcionales"],
-          ["5", "requisitos no funcionales"],
-          ["4", "mesas configuradas"],
-          ["5", "candidatos de muestra"]
-        ].map(([value, label], index) => (
-          <div className="landing-metric landing-reveal" style={revealStyle(index + 2)} key={label}>
-            <strong>{value}</strong>
-            <span>{label}</span>
+        {landingMetrics.map((metric, index) => (
+          <div className="landing-metric landing-reveal" style={revealStyle(index + 2)} key={metric.label}>
+            <strong>{metric.value}</strong>
+            <span>{metric.label}</span>
+            <small>{metric.detail}</small>
           </div>
         ))}
       </section>
 
-      <section className="landing-section" id="proceso">
-        <div className="landing-section-head">
-          <span className="eyebrow">Flujo original</span>
-          <h2>Del escaneo fisico a resultados verificables</h2>
+      <section className="landing-section landing-context-section" id="contexto">
+        <div className="landing-section-head split">
+          <div>
+            <span className="eyebrow">Problema y solucion esperada</span>
+            <h2>De un conteo manual vulnerable a un flujo verificable.</h2>
+          </div>
           <p>
-            El QR funciona como demostracion cuando no hay escaner real. El proceso objetivo de CERTUS mantiene
-            captura fisica, respaldo digital, validacion y publicacion preliminar.
+            La documentacion del proyecto parte del escenario AS-IS y define un TO-BE donde la tecnologia reduce
+            tiempos, errores de suma y falta de respaldo inmediato.
           </p>
         </div>
-        <div className="landing-process-grid">
+        <div className="landing-context-grid">
+          {landingContext.map((item, index) => (
+            <article className="landing-context-panel landing-reveal" style={revealStyle(index)} key={item.label}>
+              <span>{item.label}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+              <ul>
+                {item.points.map((point) => (
+                  <li key={point}>{point}</li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section landing-deliverables-section" aria-label="Trazabilidad del proyecto">
+        <div className="landing-section-head split">
+          <div>
+            <span className="eyebrow">Trazabilidad documental</span>
+            <h2>La landing resume el proyecto, no solo una pantalla.</h2>
+          </div>
+          <p>
+            CERTUS se presenta como una solucion completa: diagnostico, requisitos, plan de trabajo, interfaces,
+            diagramas y riesgos del proceso electoral.
+          </p>
+        </div>
+        <div className="landing-deliverable-list">
+          {landingDeliverables.map((item, index) => (
+            <article className="landing-deliverable-row landing-reveal" style={revealStyle(index)} key={item.title}>
+              <span>{item.code}</span>
+              <h3>{item.title}</h3>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-section" id="proceso">
+        <div className="landing-section-head split">
+          <div>
+            <span className="eyebrow">Flujo original CERTUS</span>
+            <h2>Del escaneo fisico a resultados verificables.</h2>
+          </div>
+          <p>
+            El prototipo conserva la logica del DEF: capturar la cedula, procesar imagen, registrar integridad,
+            bloquear duplicados y mostrar resultados preliminares.
+          </p>
+        </div>
+        <div className="landing-process-timeline">
           {landingProcess.map((step, index) => {
             const Icon = step.icon;
             return (
-              <article className="landing-process-card landing-reveal" style={revealStyle(index)} key={step.title}>
-                <div>
+              <article className="landing-process-row landing-reveal" style={revealStyle(index)} key={step.title}>
+                <div className="landing-process-index">
                   <span>{step.label}</span>
                   <Icon size={24} weight="duotone" />
                 </div>
-                <h3>{step.title}</h3>
-                <p>{step.text}</p>
+                <div className="landing-process-body">
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.summary}</p>
+                  </div>
+                  <ul>
+                    {step.details.map((detail) => (
+                      <li key={detail}>{detail}</li>
+                    ))}
+                  </ul>
+                  <code>{step.control}</code>
+                </div>
               </article>
             );
           })}
@@ -871,12 +1016,14 @@ function LandingPage() {
       </section>
 
       <section className="landing-section landing-system-section" id="sistema">
-        <div className="landing-section-head">
-          <span className="eyebrow">Producto en ejecucion</span>
-          <h2>Pantallas reales del flujo operativo</h2>
+        <div className="landing-section-head split">
+          <div>
+            <span className="eyebrow">Producto en ejecucion</span>
+            <h2>Pantallas reales del flujo operativo.</h2>
+          </div>
           <p>
-            El sistema mantiene las vistas principales del documento funcional: resultados, auditoria por mesa,
-            reportes, administracion de usuarios e historial.
+            Cada pantalla responde a un bloque funcional del documento: visualizacion, auditoria, reportes,
+            gestion de usuarios y consulta historica.
           </p>
         </div>
         <div className="landing-proof-list">
@@ -887,9 +1034,15 @@ function LandingPage() {
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <h3>{screen.title}</h3>
                   <p>{screen.text}</p>
+                  <div className="landing-proof-tags">
+                    {screen.coverage.map((item) => (
+                      <code key={item}>{item}</code>
+                    ))}
+                  </div>
                 </div>
                 <figure>
                   <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
+                  <figcaption>{screen.title} en el panel operativo CERTUS</figcaption>
                 </figure>
               </article>
             );
@@ -897,41 +1050,86 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section landing-capability-section">
-        <div className="landing-section-head">
-          <span className="eyebrow">Cobertura funcional</span>
-          <h2>Disenado desde los requisitos del proyecto</h2>
+      <section className="landing-section landing-requirements-section" id="requisitos">
+        <div className="landing-section-head split">
+          <div>
+            <span className="eyebrow">Cobertura funcional</span>
+            <h2>Requisitos convertidos en modulos visibles.</h2>
+          </div>
+          <p>
+            La landing no presenta una idea aislada: resume como la aplicacion cubre los RF y RNF definidos en el
+            Documento de Especificaciones Funcionales.
+          </p>
         </div>
-        <div className="landing-capability-grid">
-          {landingCapabilities.map((item, index) => (
-            <div className="landing-capability landing-reveal" style={revealStyle(index)} key={item}>
-              <CheckCircle size={18} weight="fill" />
-              <span>{item}</span>
-            </div>
-          ))}
+        <div className="landing-requirement-layout">
+          <div className="landing-requirement-list">
+            {requirementGroups.map((group, index) => (
+              <article className="landing-requirement-row landing-reveal" style={revealStyle(index)} key={group.title}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3>{group.title}</h3>
+                  <ul>
+                    {group.items.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </article>
+            ))}
+          </div>
+          <aside className="landing-rnf-panel">
+            <span className="eyebrow">Requisitos no funcionales</span>
+            {landingNonFunctional.map(([code, text, type]) => (
+              <div className="landing-rnf-row" key={code}>
+                <code>{code}</code>
+                <p>{text}</p>
+                <span>{type}</span>
+              </div>
+            ))}
+          </aside>
         </div>
       </section>
 
       <section className="landing-section landing-team-section" id="equipo">
-        <div className="landing-section-head">
-          <span className="eyebrow">{PROJECT_META.course}</span>
-          <h2>{PROJECT_META.systemName}</h2>
+        <div className="landing-section-head split">
+          <div>
+            <span className="eyebrow">{PROJECT_META.course}</span>
+            <h2>{PROJECT_META.systemName}</h2>
+          </div>
           <p>{PROJECT_META.subtitle}</p>
         </div>
-        <div className="landing-team-grid">
-          {PROJECT_META.members.map((member, index) => (
-            <div className="landing-team-member landing-reveal" style={revealStyle(index)} key={member.code}>
-              <strong>{projectMemberName(member.name)}</strong>
-              <span>{member.code}</span>
+        <div className="landing-project-card">
+          <dl>
+            <div>
+              <dt>Universidad</dt>
+              <dd>{PROJECT_META.university}</dd>
             </div>
-          ))}
+            <div>
+              <dt>Profesor</dt>
+              <dd>{landingProfessor}</dd>
+            </div>
+            <div>
+              <dt>Sistema</dt>
+              <dd>{PROJECT_META.systemName}</dd>
+            </div>
+          </dl>
+          <div className="landing-team-list">
+            {PROJECT_META.members.map((member, index) => (
+              <div className="landing-team-row landing-reveal" style={revealStyle(index)} key={member.code}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{projectMemberName(member.name)}</strong>
+                <code>{member.code}</code>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="landing-final">
         <div>
           <span className="eyebrow">CERTUSPE</span>
-          <h2>Listo para demostrar el proceso completo.</h2>
+          <h2>Demostracion completa, ordenada y verificable.</h2>
+          <p>Accede al panel, revisa resultados o inicia el flujo de votacion por QR.</p>
         </div>
         <a className="primary-button" href="/app">
           Abrir sistema
