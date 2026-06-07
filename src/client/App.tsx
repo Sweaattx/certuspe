@@ -89,7 +89,7 @@ const scanStages: Array<{
     details: [
       "Se registra mesa, codigo de cedula, fecha y operador responsable.",
       "La imagen queda como respaldo digital antes de depositar la cedula en la urna fisica.",
-      "El QR se usa solo como demostracion cuando no hay escaner real disponible."
+      "El QR reproduce el mismo flujo en telefono o proyector cuando no hay escaner fisico."
     ],
     evidence: "RF-001 / US-001"
   },
@@ -215,30 +215,27 @@ const navItems: Array<{
 ];
 
 const landingMetrics = [
-  { value: "2 s", label: "meta de procesamiento", detail: "Cada cedula pasa de captura a registro en una ventana operativa corta." },
-  { value: "4", label: "mesas activas", detail: "La demo distribuye el flujo entre M-014, M-018, M-021 y M-037." },
-  { value: "5", label: "perfiles de resultado", detail: "Candidatos, blancos, nulos, mesa y participacion quedan visibles." },
-  { value: "1", label: "registro verificable", detail: "Imagen, voto, mesa, hash y auditoria quedan conectados." }
+  { value: "2s", label: "meta de proceso", detail: "La captura, el registro y el hash quedan en una sola ruta." },
+  { value: "4", label: "mesas activas", detail: "M-014, M-018, M-021 y M-037 sostienen la demo." },
+  { value: "5", label: "vistas clave", detail: "Conteo, detalle, reportes, usuarios e historial." },
+  { value: "1", label: "registro verificable", detail: "Cada voto deja evidencia, mesa y validacion enlazadas." }
 ];
 
 const landingContext = [
   {
-    label: "Mesas",
-    title: "Captura ordenada desde el punto de votacion",
-    text: "La mesa registra cedulas con una ruta clara y conserva respaldo digital antes de enviar los datos al conteo preliminar.",
-    points: ["Cedula asociada a mesa", "Control de duplicidad", "Confirmacion visible"]
+    label: "Mesa",
+    title: "Captura directa",
+    text: "Un solo paso para registrar la cedula con contexto de mesa."
   },
   {
     label: "Auditoria",
-    title: "Evidencia lista para revisar y contrastar",
-    text: "Auditores pueden revisar mesa, distrito, DNI, candidato, tipo de voto y validacion sin depender de calculos manuales tardios.",
-    points: ["Detalle por mesa", "Validacion cruzada", "Historial de acciones"]
+    title: "Control por mesa",
+    text: "DNI, candidato y validacion quedan listos para revision."
   },
   {
     label: "Ciudadania",
-    title: "Resultados preliminares claros",
-    text: "La consulta publica muestra el avance del proceso con graficos simples y una lectura rapida del conteo.",
-    points: ["Conteo por candidato", "Participacion", "Actualizacion visible"]
+    title: "Lectura publica",
+    text: "Conteo preliminar simple y rapido de consultar."
   }
 ];
 
@@ -249,34 +246,11 @@ const landingHeroChecks = [
   ["Hash", "Confirmado"]
 ];
 
-const landingDeliverables = [
-  {
-    code: "01",
-    title: "Diagnostico del proceso",
-    text: "Identificamos los puntos donde aparecen demoras, errores de suma, desconfianza y falta de respaldo."
-  },
-  {
-    code: "02",
-    title: "Arquitectura de operacion",
-    text: "Organizamos captura, procesamiento, registro, auditoria y resultados como un solo flujo de trabajo."
-  },
-  {
-    code: "03",
-    title: "Experiencia por perfil",
-    text: "Disenamos vistas para mesa, auditoria, administracion y ciudadania con responsabilidades separadas."
-  },
-  {
-    code: "04",
-    title: "Demo funcional",
-    text: "El QR simula el acceso ciudadano cuando no se cuenta con escaner fisico, manteniendo el flujo verificable."
-  }
-];
-
 const landingProcess = [
   {
     label: "01",
     title: "Captura",
-    summary: "La cedula se digitaliza y queda asociada a una mesa, un codigo y un operador responsable.",
+    summary: "La cedula entra con mesa, codigo y operador.",
     control: "Escaneo",
     details: ["Codigo de cedula", "Mesa de votacion", "Imagen de respaldo"],
     icon: IdentificationCard
@@ -284,15 +258,15 @@ const landingProcess = [
   {
     label: "02",
     title: "Lectura de marcas",
-    summary: "El sistema interpreta la marca del votante y clasifica el voto antes de registrarlo.",
+    summary: "El sistema detecta la marca y clasifica el voto.",
     control: "Vision digital",
-    details: ["Deteccion de marcas", "Clasificacion del voto", "Candidato identificado"],
+    details: ["Deteccion de marcas", "Candidato identificado", "Voto clasificado"],
     icon: Pulse
   },
   {
     label: "03",
     title: "Integridad",
-    summary: "El voto y su evidencia se guardan con trazabilidad para impedir duplicados y facilitar auditoria.",
+    summary: "El registro queda trazado para evitar duplicados.",
     control: "Hash",
     details: ["Registro centralizado", "Hash del voto", "Bitacora de acciones"],
     icon: LockKey
@@ -300,7 +274,7 @@ const landingProcess = [
   {
     label: "04",
     title: "Publicacion",
-    summary: "Los registros confirmados alimentan resultados, reportes y detalle por mesa para los perfiles autorizados.",
+    summary: "Los resultados se actualizan para consulta y auditoria.",
     control: "Conteo",
     details: ["Resultados generales", "Detalle por mesa", "Reporte preliminar"],
     icon: ChartBar
@@ -311,60 +285,39 @@ const landingScreens = [
   {
     id: "results",
     title: "Resultados generales",
-    text: "Conteo preliminar por candidato, participacion y detalle por mesa.",
+    text: "Conteo, participacion y mesa en una sola vista.",
     image: landingResultsUrl,
     coverage: ["Conteo", "Grafico", "Mesa"]
   },
   {
     id: "audit",
     title: "Auditoria detallada",
-    text: "Registros con DNI, mesa, distrito, tipo de voto, candidato y estado de validacion.",
+    text: "DNI, mesa, distrito, voto y validacion en una grilla limpia.",
     image: landingAuditUrl,
     coverage: ["Validacion", "DNI", "Detalle"]
   },
   {
     id: "reports",
     title: "Reportes automaticos",
-    text: "Resumen de integridad, incidencias y datos listos para revision.",
+    text: "Resumen de integridad, incidencias y exportacion lista.",
     image: landingReportsUrl,
     coverage: ["Reporte", "Riesgos", "JSON"]
   },
   {
     id: "users",
     title: "Gestion de usuarios",
-    text: "Roles operativos para administradores, auditores, miembros de mesa y ciudadania.",
+    text: "Roles operativos y acceso por perfil.",
     image: landingUsersUrl,
     coverage: ["Roles", "Accesos", "Estado"]
   },
   {
     id: "history",
     title: "Historial de acciones",
-    text: "Bitacora de accesos, escaneos, validaciones y actividad del sistema.",
+    text: "Bitacora de accesos, validaciones y eventos clave.",
     image: landingHistoryUrl,
     coverage: ["Logs", "Eventos", "Auditoria"]
   }
 ] as const;
-
-const landingTrust = [
-  {
-    title: "Respaldo auditable",
-    text: "Cada registro conserva imagen, mesa, codigo y huella de integridad para revisiones posteriores."
-  },
-  {
-    title: "Roles separados",
-    text: "Administracion, auditoria, mesa y ciudadania acceden a vistas distintas segun su responsabilidad."
-  },
-  {
-    title: "Resultados entendibles",
-    text: "La informacion se presenta en graficos, detalle por mesa y reportes sin saturar al usuario final."
-  },
-  {
-    title: "Demo adaptable",
-    text: "El QR permite probar el flujo en telefono, proyector o PC cuando no existe equipo de escaneo real."
-  }
-];
-
-const landingProfessor = "Jorge Luis Delgado Vite";
 
 function roleLabel(role: Role): string {
   const labels: Record<Role, string> = {
@@ -465,7 +418,7 @@ function createBallotPreview(candidates: Candidate[], selectedIds: string[], ser
       <line x1="42" y1="88" x2="458" y2="88" stroke="#eef2f7"/>
       ${rows}
       <line x1="42" y1="${footerLineY}" x2="458" y2="${footerLineY}" stroke="#eef2f7"/>
-      <text x="42" y="${footerTextY}" font-family="'IBM Plex Mono', Consolas, monospace" font-size="8.5" fill="#667086">Documento generado por terminal CERTUS</text>
+      <text x="42" y="${footerTextY}" font-family="'IBM Plex Mono', Consolas, monospace" font-size="8.5" fill="#667086">Registro generado por terminal CERTUS</text>
     </svg>
   `);
 }
@@ -885,10 +838,9 @@ function LandingPage() {
           </span>
         </a>
         <nav aria-label="Navegacion publica">
-          <a href="#solucion">Solucion</a>
+          <a href="#beneficios">Beneficios</a>
           <a href="#proceso">Proceso</a>
           <a href="#plataforma">Plataforma</a>
-          <a href="#confianza">Confianza</a>
           <a href="#equipo">Equipo</a>
         </nav>
         <a className="landing-login" href="/app">
@@ -902,8 +854,8 @@ function LandingPage() {
           <span className="eyebrow">CERTUSPE</span>
           <h1>Resultados preliminares con respaldo verificable.</h1>
           <p>
-            Una plataforma para acelerar el conteo, reducir errores manuales y entregar evidencia digital desde la
-            mesa de votacion hasta la publicacion de resultados.
+            Conteo preliminar, trazabilidad por mesa y consulta publica en una experiencia clara para operacion y
+            revision.
           </p>
           <div className="landing-project-strip" aria-label="Datos del proyecto">
             <span>Escaneo de cedulas</span>
@@ -945,7 +897,7 @@ function LandingPage() {
             <div className="landing-panel-result">
               <span>Resultado operativo</span>
               <strong>Registro validado y listo para revision</strong>
-              <p>La demostracion por QR replica el recorrido ciudadano cuando no hay escaner fisico disponible.</p>
+              <p>El QR mantiene la sesion y lleva directo al flujo de voto.</p>
             </div>
           </div>
         </div>
@@ -953,7 +905,7 @@ function LandingPage() {
 
       <section className="landing-metrics" aria-label="Indicadores del sistema">
         {landingMetrics.map((metric, index) => (
-          <div className="landing-metric landing-reveal" style={revealStyle(index + 2)} key={metric.label}>
+          <div className="landing-metric" key={metric.label}>
             <strong>{metric.value}</strong>
             <span>{metric.label}</span>
             <small>{metric.detail}</small>
@@ -961,48 +913,51 @@ function LandingPage() {
         ))}
       </section>
 
-      <section className="landing-section landing-context-section" id="solucion">
+      <section className="landing-section landing-system-section" id="plataforma">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Solucion operativa</span>
-            <h2>Menos espera, menos duda, mas trazabilidad.</h2>
+            <span className="eyebrow">Vistas</span>
+            <h2>Pantallas del sistema en escritorio y movil.</h2>
+          </div>
+          <p>Una vista compacta del conteo, la auditoria y la gestion del proceso.</p>
+        </div>
+        <div className="landing-gallery-grid">
+          {landingScreens.map((screen, index) => {
+            return (
+              <article className="landing-gallery-card" key={screen.id}>
+                <figure>
+                  <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
+                </figure>
+                <div className="landing-gallery-copy">
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <h3>{screen.title}</h3>
+                  <p>{screen.text}</p>
+                  <div className="landing-proof-tags">
+                    {screen.coverage.map((item) => (
+                      <code key={item}>{item}</code>
+                    ))}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="landing-section landing-context-section" id="beneficios">
+        <div className="landing-section-head split">
+          <div>
+            <span className="eyebrow">Beneficios</span>
+            <h2>Tres vistas, un solo flujo.</h2>
           </div>
           <p>
-            CERTUSPE conecta mesa, auditoria y ciudadania en una experiencia simple: capturar, validar, respaldar y
-            consultar resultados sin depender de procesos manuales dispersos.
+            Mesa, auditoria y consulta publica en una lectura corta y directa.
           </p>
         </div>
         <div className="landing-context-grid">
           {landingContext.map((item, index) => (
-            <article className="landing-context-panel landing-reveal" style={revealStyle(index)} key={item.label}>
+            <article className="landing-context-panel" key={item.label}>
               <span>{item.label}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-              <ul>
-                {item.points.map((point) => (
-                  <li key={point}>{point}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="landing-section landing-deliverables-section" aria-label="Trazabilidad del proyecto">
-        <div className="landing-section-head split">
-          <div>
-            <span className="eyebrow">Estrategia de producto</span>
-            <h2>Del problema electoral a una demo funcional.</h2>
-          </div>
-          <p>
-            La propuesta combina investigacion, arquitectura y experiencia de usuario para mostrar como se podria
-            modernizar el conteo preliminar sin perder control fisico del proceso.
-          </p>
-        </div>
-        <div className="landing-deliverable-list">
-          {landingDeliverables.map((item, index) => (
-            <article className="landing-deliverable-row landing-reveal" style={revealStyle(index)} key={item.title}>
-              <span>{item.code}</span>
               <h3>{item.title}</h3>
               <p>{item.text}</p>
             </article>
@@ -1013,19 +968,18 @@ function LandingPage() {
       <section className="landing-section" id="proceso">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Flujo CERTUSPE</span>
-            <h2>Un recorrido claro desde la cedula hasta el resultado.</h2>
+            <span className="eyebrow">Proceso</span>
+            <h2>Cuatro pasos, una sola salida.</h2>
           </div>
           <p>
-            El flujo esta pensado para una mesa real: primero se captura la cedula, luego se interpreta, se protege el
-            registro y finalmente se publica informacion preliminar.
+            Captura, lectura, integridad y publicacion sin ruido.
           </p>
         </div>
         <div className="landing-process-timeline">
           {landingProcess.map((step, index) => {
             const Icon = step.icon;
             return (
-              <article className="landing-process-row landing-reveal" style={revealStyle(index)} key={step.title}>
+              <article className="landing-process-row" key={step.title}>
                 <div className="landing-process-index">
                   <span>{step.label}</span>
                   <Icon size={24} weight="duotone" />
@@ -1048,91 +1002,24 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-section landing-system-section" id="plataforma">
-        <div className="landing-section-head split">
-          <div>
-            <span className="eyebrow">Producto en pantalla</span>
-            <h2>Paneles listos para operar y presentar.</h2>
-          </div>
-          <p>
-            Las capturas se agrupan como una galeria del producto. No son el centro de la landing: son la evidencia de
-            que el flujo ya puede demostrarse.
-          </p>
-        </div>
-        <div className="landing-gallery-grid">
-          {landingScreens.map((screen, index) => {
-            return (
-              <article className="landing-gallery-card landing-reveal" style={revealStyle(index)} key={screen.id}>
-                <figure>
-                  <img src={screen.image} alt={`Vista de ${screen.title} en CERTUS`} loading="lazy" />
-                </figure>
-                <div className="landing-gallery-copy">
-                  <span>{String(index + 1).padStart(2, "0")}</span>
-                  <h3>{screen.title}</h3>
-                  <p>{screen.text}</p>
-                  <div className="landing-proof-tags">
-                    {screen.coverage.map((item) => (
-                      <code key={item}>{item}</code>
-                    ))}
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="landing-section landing-trust-section" id="confianza">
-        <div className="landing-section-head split">
-          <div>
-            <span className="eyebrow">Confianza operativa</span>
-            <h2>Disenado para explicar, controlar y auditar.</h2>
-          </div>
-          <p>
-            CERTUSPE no reemplaza la fiscalizacion: la ordena. Cada vista ayuda a revisar el proceso con informacion
-            mas clara, trazable y facil de presentar.
-          </p>
-        </div>
-        <div className="landing-trust-grid">
-          {landingTrust.map((item, index) => (
-            <article className="landing-trust-card landing-reveal" style={revealStyle(index)} key={item.title}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <h3>{item.title}</h3>
-              <p>{item.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="landing-section landing-team-section" id="equipo">
         <div className="landing-section-head split">
           <div>
-            <span className="eyebrow">Equipo y respaldo academico</span>
+            <span className="eyebrow">Equipo</span>
             <h2>{PROJECT_META.systemName}</h2>
           </div>
-          <p>{PROJECT_META.subtitle}. Proyecto desarrollado para {PROJECT_META.course}.</p>
+          <p>Equipo y miembros del proyecto.</p>
         </div>
         <div className="landing-project-card">
-          <dl>
-            <div>
-              <dt>Universidad</dt>
-              <dd>{PROJECT_META.university}</dd>
-            </div>
-            <div>
-              <dt>Profesor</dt>
-              <dd>{landingProfessor}</dd>
-            </div>
-            <div>
-              <dt>Sistema</dt>
-              <dd>{PROJECT_META.systemName}</dd>
-            </div>
-          </dl>
+          <div className="landing-team-brand">
+            <span>Empresa</span>
+            <strong>{PROJECT_META.systemName}</strong>
+          </div>
           <div className="landing-team-list">
             {PROJECT_META.members.map((member, index) => (
-              <div className="landing-team-row landing-reveal" style={revealStyle(index)} key={member.code}>
+              <div className="landing-team-row" key={member.code}>
                 <span>{String(index + 1).padStart(2, "0")}</span>
                 <strong>{projectMemberName(member.name)}</strong>
-                <code>{member.code}</code>
               </div>
             ))}
           </div>
@@ -1142,8 +1029,8 @@ function LandingPage() {
       <section className="landing-final">
         <div>
           <span className="eyebrow">CERTUSPE</span>
-          <h2>Una demostracion lista para presentar.</h2>
-          <p>Abre el sistema, muestra el QR, revisa el panel y explica el recorrido completo del conteo preliminar.</p>
+          <h2>Una experiencia lista para usuarios finales.</h2>
+          <p>Abre el sistema, muestra el QR y sigue el conteo preliminar de principio a fin.</p>
         </div>
         <a className="primary-button" href="/app">
           Abrir sistema

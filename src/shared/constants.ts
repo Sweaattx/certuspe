@@ -19,7 +19,7 @@ export const PROJECT_META: ProjectMeta = {
   university: "Universidad Peruana de Ciencias Aplicadas",
   course: "SI720 Diseno y Patrones de Software",
   systemName: "STELA / CERTUS",
-  subtitle: "Sistema de conteo preliminar para procesos electorales",
+  subtitle: "Conteo preliminar con trazabilidad por mesa",
   members: [
     { name: "Llanos Alvarez, Guillermo", code: "U202422204" },
     { name: "Garcia Bernal, Daniela", code: "U202212994" },
